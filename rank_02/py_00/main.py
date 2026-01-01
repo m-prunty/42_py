@@ -14,6 +14,8 @@ How it works:
 Make sure your exercise files are in the same folder as this main.py file!
 """
 
+# from ex0 import ft_hello_garden
+
 
 def test_ft_exercise(exercise_file_name):
     """
@@ -26,6 +28,7 @@ def test_ft_exercise(exercise_file_name):
     """
     print(f"\n=== Testing {exercise_file_name} ===")
 
+    breakpoint()
     try:
         # Import your exercise file
         # This is like doing: import ft_plot_area
@@ -86,6 +89,7 @@ def test_ft_exercise(exercise_file_name):
 
 
 def main():
+    breakpoint()
     """Run main function - this runs when you execute: python3 main.py ."""
     print("🌱 Welcome to Growing Code! 🌱")
     print("This helper will test your exercises for you.")
@@ -106,7 +110,7 @@ def main():
 
     # Test the exercise based on user choice
     if choice == "0":
-        test_ft_exercise("ft_hello_garden")
+        test_ft_exercise("ex0/ft_hello_garden")
     elif choice == "1":
         test_ft_exercise("ft_plot_area")
     elif choice == "2":
