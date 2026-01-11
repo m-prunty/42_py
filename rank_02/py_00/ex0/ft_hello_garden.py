@@ -10,9 +10,9 @@
 #                                                                             #
 # *************************************************************************** #
 
-def ft_hello_garden(msg: str) -> None:
-    print(f"{msg}")
+def ft_hello_garden() -> None:
+    print("Hello, Garden Community!")
 
 
 if __name__ == "__main__":
-    ft_hello_garden("Hello, Garden Community!")
+    ft_hello_garden()
