@@ -1,131 +1,111 @@
 #!/usr/bin/env python3
+# *************************************************************************** #
+#                                                                             #
+#                                                        :::      ::::::::    #
+#    ft_garden_security.py                             :+:      :+:    :+:    #
+#                                                    +:+ +:+         +:+      #
+#    By: potz <maprunty@student.42.fr>             +#+  +:+       +#+         #
+#                                                +#+#+#+#+#+   +#+            #
+#    Created: 2026/01/19 02:37:31 by potz             #+#    #+#              #
+#    Updated: 2026/01/19 06:23:38 by potz            ###   ########.fr        #
+#                                                                             #
+# *************************************************************************** #
+"""Create secure methods for getting and setting SecurePlant info."""
 
-class SecurePlant():
+
+class SecurePlant:
+    """Represent a plant and its info.
+
+    Attributes:
+        name (str): Name of plant
+        _height (int): Height in cm
+        _days (int): Age in days
+        growrate (int): Growth in cm per day
     """
-    doc
-    """
-    def __init__(self, name: str, height: int, age: int):
-        self._err = 0
-        self._name = name
-        print(f"Plant created: {self._name}")
-        self._set_height(height)
-        self._set_age(age)
-        self._time = 1
-        self._growrate = 1
 
-    def grow(self):
-        self._height += self._growrate * self._time  # (self.height % 2) + 1
+    def __init__(self, name: str, height: int, age: int) -> None:
+        """Initialise a SecurePlant object.
 
-    def age(self):
-        self._age += self._time
+        Args:
+            name (str): Name of plant
+            height (int): Initial height in cm
+            age (int): Initial age in days
+        """
+        self.name = name
+        print(f"Plant created: {self.name}")
+        self.set_height(height)
+        self.set_age(age)
+        self.growrate = 1
 
-    def get_info(self):
-        if self._name:
-            print(f"{self._name}: ", end="")
-        print("(", end="")
-        if self._height:
-            print(f"{self.get_height()}cm, ", end="")
-        if self._age:
-            print(f"{self.get_age()} days", end="")
-        print(")")
-
-    def print_err(self, operation: str, msg: str):
-        print("")
-        print(f"Invalid operation attempted: {operation}")
-        print(f"Security: {msg}")
-        print("Current plant: ", end="")
-        self.get_info()
-
-    def _set_height(self, height: int):
+    def set_height(self, height: int) -> None:
+        """Securely set a plants height."""
         if height >= 0:
             self._height = height
-            print(f"Height updated: {self._height}cm [OK]")
+            print(f"Height updated: {self._height}cm", end=" ")
+            print("\x1b[32m[OK]\x1b[0m")
         else:
             self.print_err(
-                    f"height {height}cm [REJECTED]", "Neg height rejected")
+                    f"height {height}cm", "Negative height rejected")
 
-    def _set_age(self, age: int):
+    def set_age(self, age: int) -> None:
+        """Securely set a plants age."""
         if age >= 0:
             self._age = age
-            print(f"Age updated: {self._age}cm [OK]")
+            print(f"Age updated: {self._age} days", end=" ")
+            print("\x1b[32m[OK]\x1b[0m")
         else:
-            self.print_err(f"Age {age} [REJECTED]", "Neg age rejected")
+            self.print_err(f"Age {age}", "Negative age rejected")
 
-    def get_height(self):
+    def get_height(self) -> int:
+        """Get a plants height.
+
+        Returns:
+            int: The height of a plant
+        """
         return self._height
 
-    def get_age(self):
+    def get_age(self) -> int:
+        """Get a plants age.
+
+        Returns:
+            int: The age of a plant
+        """
         return self._age
 
+    def get_info(self) -> str:
+        """Get info about a plant.
 
-# def _age_pants(plnt: SecurePlant, days: int):
-#    plnt
-# def _from_dict(key: str, val: tuple)->SecurePlant:
+        Returns:
+            str: String representation of a plant
+        """
+        return (f"""{self.name}: ({self._height}cm, {self._age} days)""")
 
+    def print_err(self, operation: str, msg: str) -> None:
+        """Display an error.
 
-class Garden():
-    def __init__(self, plants: list):
-        self.plants = []
-        for plant in plants:
-            self.add_ele(plant)
-        self.n = self.plants.__len__()
-        self.day = 1
-
-    def add_ele(self, plant: SecurePlant):
-        if plant.get_height() and plant.get_age():
-            self.plants.append(plant)
-        else:
-            print("error")
-
-    def pass_time(self, days):
-        self.day = days
-        for plant in self.plants:
-            plant.time = self.day
-            plant.age()
-            plant.grow()
-
-    def print_garden(self):
-        print(f"=== Day {self.day} ===")
-        for plant in self.plants:
-            plant.get_info()
-
-    def ex4(self):
-        self.plants[0]._set_height(-5)
-        print()
-
-    def verify(self):
-        for p in self.plants:
-            print("Created: ", end='')
-            p.get_info()
+        Args:
+            operation (str): The operation that was attempted
+            msg (str): The message to be printed
+        """
         print("")
-        print(f"Total plants created: {self.n}", end='')
+        print(f"Invalid operation attempted: {operation}", end=" ")
+        print("\x1b[31m[REJECTED]\x1b[0m ")
+        print(f"Security: {msg}")
+        print("")
+        print(f"Current plant: {self.get_info()}")
 
 
-def build_dict() -> dict:
-    return {
-        "Rose": (25, 30),
-        "Oak": (200, 365),
-        "Cactus": (5, 90),
-        }
-
-
-def plant_factory(plant_dict: dict) -> list:
-    r_list = []
-    for k, v in plant_dict.items():
-        r_list.append(SecurePlant(k, v[0], v[1]))
-    return r_list
+def ex4(plant: SecurePlant):
+    """Attempt to set height to a negative value as per subject spec."""
+    plant.set_height(-5)
+    print()
 
 
 def main():
-    print("=== SecurePlant Factory Output ===")
-    p_dict = build_dict()
-    garden = Garden(plant_factory(p_dict))
-    garden.verify()
-    garden.ex4()
-
-# def _age_pants(plnt: SecurePlant, days: int):
-#    plnt
-# def _from_dict(key: str, val: tuple)->SecurePlant:
+    """Build plant dict, create list of plants and run ex4 test."""
+    print("=== Garden Security System ===")
+    p = SecurePlant("Rose", 25, 30)
+    ex4(p)
 
 
 if __name__ == "__main__":

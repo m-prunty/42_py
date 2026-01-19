@@ -7,7 +7,7 @@
 #    By: potz <maprunty@student.42.fr>             +#+  +:+       +#+         #
 #                                                +#+#+#+#+#+   +#+            #
 #    Created: 2026/01/19 00:36:38 by potz             #+#    #+#              #
-#    Updated: 2026/01/19 01:27:59 by potz            ###   ########.fr        #
+#    Updated: 2026/01/19 05:43:14 by potz            ###   ########.fr        #
 #                                                                             #
 # *************************************************************************** #
 """Creat multiple Plant instances and verify."""
@@ -55,7 +55,7 @@ class Plant:
         Returns:
             str: String representation of a plant
         """
-        return (f"""{self.name}: {self._height}cm, {self._days} days""")
+        return (f"""{self.name}: ({self._height}cm, {self._days} days)""")
 
 
 class Garden:
@@ -89,17 +89,6 @@ class Garden:
         self.plants.append(plant)
         self.nplants += 1
 
-    def pass_time(self, days: int) -> None:
-        """Simulate time until days passed.
-
-        Args:
-            days (int): N of days to pass
-        """
-        while self.day < days:
-            for plant in self.plants:
-                plant.pass_day()
-            self.day += 1
-
     def print_garden(self) -> None:
         """Print info about a Gardens plants."""
         print(f"=== Day {self.day} ===")
@@ -108,14 +97,6 @@ class Garden:
             growth = (self.day - self.start_day) * plant.growrate
             if (growth):
                 print(f"Growth this week: +{growth}cm")
-
-    def verify(self):
-        """Step through a gardens plant list and verify proper creation."""
-        for p in self.plants:
-            print("Created: ", end='')
-            print(p.get_info())
-        print("")
-        print(f"Total plants created: {self.nplants}", end='')
 
 
 def build_dict() -> dict:

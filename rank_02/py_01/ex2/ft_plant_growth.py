@@ -7,7 +7,7 @@
 #    By: maprunty <maprunty@student.42heilbronn.d  +#+  +:+       +#+         #
 #                                                +#+#+#+#+#+   +#+            #
 #    Created: 2026/01/17 12:46:23 by maprunty         #+#    #+#              #
-#    Updated: 2026/01/19 00:32:54 by potz            ###   ########.fr        #
+#    Updated: 2026/01/19 02:35:31 by potz            ###   ########.fr        #
 #                                                                             #
 # *************************************************************************** #
 """Track how plants change and provide operations to modify their state."""
@@ -111,12 +111,12 @@ class Garden:
 def main() -> None:
     """Create a Garden, add Plants, and print the info."""
     plant_list = [Plant("Rose", 25, 30),
-                  Plant("Cactus", 10, 180),
-                  Plant("Tulip", 22, 26),
+                  # Plant("Cactus", 10, 180),
+                  # Plant("Tulip", 22, 26),
                   ]
     garden = Garden(plant_list)
     garden.print_garden()
-    garden.pass_time(3)
+    garden.pass_time(7)
     garden.print_garden()
 
 

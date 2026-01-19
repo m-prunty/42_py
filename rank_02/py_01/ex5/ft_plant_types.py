@@ -1,238 +1,355 @@
 #!/usr/bin/env python3
+# *************************************************************************** #
+#                                                                             #
+#                                                        :::      ::::::::    #
+#    ft_plant_types.py                                 :+:      :+:    :+:    #
+#                                                    +:+ +:+         +:+      #
+#    By: potz <maprunty@student.42.fr>             +#+  +:+       +#+         #
+#                                                +#+#+#+#+#+   +#+            #
+#    Created: 2026/01/19 06:25:32 by potz             #+#    #+#              #
+#    Updated: 2026/01/19 10:21:29 by potz            ###   ########.fr        #
+#                                                                             #
+# *************************************************************************** #
+"""Create Specialised Plant types and their corresponding info."""
 
-class Plant():
-    def __init__(self, name: str, height: int, age: int):
-        self._err = 0
-        self._name = name
-        self._height = 0
-        self._age = 0
-        self._ability = ""
 
-        print(f"Plant created: {self._name}")
+class Plant:
+    """Represent a plant and its info.
+
+    Attributes:
+        name (str): Name of plant
+        height (int): Height in cm
+        age (int): Age in days
+        growrate (int): Growth in cm per day
+    """
+
+    def __init__(self, name: str, height: int, age: int) -> None:
+        """Initialise a Plant object.
+
+        Args:
+            name (str): Name of plant
+            height (int): Initial height in cm
+            age (int): Initial age in days
+        """
+        self.name = name
         self.height = height
         self.age = age
-        self._time = 1
         self._growrate = 1
 
-    def grow(self):
-        self.height += self._growrate * self._time  # (self.height % 2) + 1
+    def ability(self) -> None:
+        """Plants special ability."""
+        print("This plant has no special action.")
 
     @property
-    def height(self):
+    def ptype(self) -> str:
+        """Get Plant type.
+
+        Returns:
+            str: Plant type from class name
+        """
+        return self.__class__.__name__
+
+    @property
+    def height(self) -> int:
+        """Get a plants height.
+
+        Returns:
+            int: The height of a plant
+        """
         return self._height
 
     @height.setter
-    def height(self, height: int):
+    def height(self, height: int) -> None:
+        """Securely set a plants height."""
         if height >= 0:
             self._height = height
-            print(f"Height updated: {self._height}cm [OK]")
+            # print(f"Height updated: {self._height}cm", end=" ")
+            # print("\x1b[32m[OK]\x1b[0m")
         else:
             self.print_err(
-                    f"height {height}cm [REJECTED]", "Neg height rejected")
+                    f"height {height}cm", "Neg height rejected")
 
     @property
-    def ability(self):
-        return self._ability
+    def age(self) -> int:
+        """Get a plants age.
 
-    @ability.setter
-    def ability(self, ability):
-        self._ability = ability
-
-    @property
-    def age(self):
+        Returns:
+            int: The age of a plant
+        """
         return self._age
 
     @age.setter
-    def age(self, age: int):
+    def age(self, age: int) -> None:
+        """Securely set a plants age."""
         if age >= 0:
             self._age = age
-            print(f"Age updated: {self._age} days old [OK]")
+            # print(f"Age updated: {self._age} days old", end=" ")
+            # print("\x1b[32m[OK]\x1b[0m")
         else:
-            self.print_err(f"Age {age} [REJECTED]", "Neg age rejected")
+            self.print_err(f"Age {age}", "Neg age rejected")
 
-    def __str__(self):
-        str = f"{self._name} ({self.ptype}): "
+    def __str__(self) -> str:
+        """Get info about a plant.
+
+        Returns:
+            str: String representation of available info about a plant
+        """
+        ret_string = f"{self.name} ({self.ptype}): "
         if self.height:
-            str += f"{self.height}cm, "
+            ret_string += f"{self.height}cm, "
         if self.age:
-            str += f"{self.age} days, "
-        return str
+            ret_string += f"{self.age} days, "
+        ret_string += self.ext_info()
+        return ret_string
 
-    def print_err(self, operation: str, msg: str):
+    def ext_info(self) -> str:
+        """Get extra info specific to a Plant type.
+
+        Returns:
+            str: Plant specific info
+        """
+        return ""
+
+    def print_err(self, operation: str, msg: str) -> None:
+        """Display an error.
+
+        Args:
+            operation (str): The operation that was attempted
+            msg (str): The message to be printed
+        """
         print("")
-        print(f"Invalid operation attempted: {operation}")
+        print(f"Invalid operation attempted: {operation}", end=" ")
+        print("\x1b[31m[REJECTED]\x1b[0m ")
         print(f"Security: {msg}")
         print("")
-        print(f"Current plant: {self}", end="")
+        print(f"Current plant: {self}")
 
 
 class Flower(Plant):
-    def __init__(self, name: str, height: int, age: int, colour: str):
+    """Represent a Flower and its info.
+
+    Inherits from:
+        Plant
+
+    Attributes:
+        colour (str): the colour of a flower
+    """
+
+    def __init__(self, name: str, height: int, age: int, colour: str) -> None:
+        """Initialise a Flower object.
+
+        Args:
+            name (str): Name of Flower
+            height (int): Initial height in cm
+            age (int): Initial age in days
+            colour (str): the colour of the flower
+        """
         super().__init__(name, height, age)
         self.colour = colour
-        self.ptype = "Flower"
 
-    def __str__(self):
-        str = super().__str__()
-        str += f"{self.colour} colour"
-        return str
+    def ext_info(self) -> None:
+        """Extra info for Flower(Plant) class.
+
+        Returns:
+            str: Plant info, Flower specific colour
+        """
+        return f"{self.colour} colour"
 
     @property
-    def colour(self):
+    def colour(self) -> str:
+        """Get a flowers colour property.
+
+        Returns:
+            str: Flower colour
+        """
         return self._colour
 
     @colour.setter
-    def colour(self, colour):
+    def colour(self, colour) -> None:
+        """Set a flowers colour property."""
         self._colour = colour
 
-    @property
-    def ability(self):
-        super()._ability = self.bloom()
-        return self._ability
+    def ability(self) -> None:
+        """Plants special ability."""
+        self.bloom()
 
-    def bloom(self):
+    def bloom(self) -> None:
+        """Flowers special ability."""
         tmp = self.age * self.height
-        str = ""
         if tmp < 750:
-            str += (f"{self._name} is not ready to bloom yet")
+            print(f"{self.name} is not ready to bloom yet")
         elif tmp < 3000:
-            str += (f"{self._name} is blooming beautifully")
+            print(f"{self.name} is blooming beautifully")
         else:
-            str += (f"{self._name} is probably dead...")
-        return str
+            print(f"{self.name} is probably dead...")
 
 
 class Tree(Plant):
-    def __init__(self, name: str, height: int, age: int, trunk_diameter: str):
+    """Represent a Tree and its info.
+
+    Inherits from:
+        Plant
+
+    Attributes:
+        trunk_diameter (int): the trunk_diameter of a Tree
+    """
+
+    def __init__(self, name: str, height: int, age: int,
+                 trunk_diameter: int) -> None:
+        """Initialise a Tree object.
+
+        Args:
+            name (str): Name of Tree
+            height (int): Initial height in cm
+            age (int): Initial age in days
+            trunk_diameter (int): the trunk_diameter of the Tree
+        """
         super().__init__(name, height, age)
         self.trunk_diameter = trunk_diameter
-        self.ptype = "Tree"
+
+    def ext_info(self) -> str:
+        """Extra info for Tree(Plant) class.
+
+        Returns:
+            str: Plant info, Tree specific trunk_diameter
+        """
+        return f"{self.trunk_diameter}cm diameter"
 
     @property
-    def trunk_diameter(self):
+    def trunk_diameter(self) -> int:
+        """Get a Trees trunk_diameter property.
+
+        Returns:
+            int: Tree trunk_diameter
+        """
         return self._trunk_diameter
 
     @trunk_diameter.setter
-    def trunk_diameter(self, trunk_diameter):
+    def trunk_diameter(self, trunk_diameter) -> None:
+        """Set a Trees trunk_diameter property."""
         self._trunk_diameter = trunk_diameter
 
-    def __str__(self):
-        str = super().__str__()
-        if self.trunk_diameter:
-            str += f"{self.trunk_diameter}cm diameter"
-        return str
+    def ability(self) -> None:
+        """Plants special ability."""
+        self.produce_shade()
 
-    def get_shade(self):
+    def produce_shade(self) -> None:
+        """Trees special ability."""
         tmp = (self.height * self._trunk_diameter) * (1/12) * self.age
         tmp = ((tmp / 100000) * 2) + 2
         if tmp < 3000:
-            print(f"{self._name} provides {int(tmp)} square meters of shade")
+            print(f"{self.name} provides {int(tmp)} square meters of shade")
         else:
-            print(f"{self._name} is probably dead...")
+            print(f"{self.name} is probably dead...")
 
 
 class Vegetable(Plant):
-    def __init__(self, name: str, height: int, age: int, harvest_season: str):
+    """Represent a Vegetable and its info.
+
+    Inherits from:
+        Plant
+
+    Attributes:
+        harvest_season (int): the harvest_season of a Vegetable
+    """
+
+    def __init__(self, name: str, height: int, age: int,
+                 harvest_season: str) -> None:
+        """Initialise a Vegetable object.
+
+        Args:
+            name (str): Name of Vegetable
+            height (int): Initial height in cm
+            age (int): Initial age in days
+            harvest_season (int): the harvest_season of the Vegetable
+        """
         super().__init__(name, height, age)
-        self.ptype = "Vegetable"
         self.harvest_season = harvest_season
 
-    def __str__(self):
-        str = super().__str__()
-        str += f"{self.harvest_season} harvest"
-        return str
+    def ext_info(self) -> str:
+        """Extra info for Vegetable(Plant) class.
+
+        Returns:
+            str: Plant info, Vegetable specific harvest_season
+        """
+        return f"{self.harvest_season} harvest"
 
     @property
-    def harvest_season(self):
+    def harvest_season(self) -> str:
+        """Get a Vegetables harvest_season property.
+
+        Returns:
+            str: Vegetable harvest_season
+        """
         return self._harvest_season
 
     @harvest_season.setter
-    def harvest_season(self, harvest_season):
+    def harvest_season(self, harvest_season) -> None:
+        """Set a Vegetables harvest_season property."""
         self._harvest_season = harvest_season
 
-    def nutrional_value(self):
+    def ability(self) -> None:
+        """Plants special ability."""
+        self.nutritional_value()
+
+    def nutritional_value(self) -> None:
+        """Vegetables special ability."""
         tmp = self.age * self.height
         if tmp < 7200:
-            print(f"{self._name} is not ripe yet")
+            print(f"{self.name} is not ripe yet")
         elif tmp < 10000:
-            print(f"{self._name} is rich in vitamin C")
+            print(f"{self.name} is rich in vitamin C")
         else:
-            print(f"{self._name} is probably dead...")
-
-# def _age_pants(plnt: SecurePlant, days: int):
-#    plnt
-# def _from_dict(key: str, val: tuple)->SecurePlant:
+            print(f"{self.name} is probably dead...")
 
 
 class Garden():
-    def __init__(self, plants: list):
+    """Represent a garden to hold mulitple plants.
+
+    Attributes:
+        plants (list): List of plants in Garden
+    """
+
+    def __init__(self, plants: list) -> None:
+        """Initialise a garden object.
+
+        Args:
+            plants (list): List of plants
+        """
         self.plants = []
         for plant in plants:
-            self.add_ele(plant)
-        self.n = self.plants.__len__()
-        self.day = 1
+            self.add_plant(plant)
 
-    def add_ele(self, plant: Plant):
-        if plant.height and plant.age:
-            self.plants.append(plant)
-        else:
-            print("error")
+    def add_plant(self, plant: Plant) -> None:
+        """Add a Plant object to the Garden list.
 
-    def pass_time(self, days):
-        self.day = days
+        Args:
+            plant (Plant): Plant object to add to list
+        """
+        self.plants.append(plant)
+
+    def print_garden(self) -> None:
+        """Print info about a Gardens plants."""
         for plant in self.plants:
-            plant.time = self.day
-            plant.age()
-            plant.grow()
-
-    def print_garden(self):
-        print(f"=== Day {self.day} ===")
-        for plant in self.plants:
+            print()
             print(plant)
-
-    def ex5(self):
-        for plant in self.plants:
-            print(plant)
-            print(plant.ability)
-
-    def ex5_test(self):
-        self.plants[0].bloom()
-        self.plants[0].height = 30
-        self.plants[0].bloom()
-        self.plants[0].age = 99
-        self.plants[0].bloom()
-        print("")
-        self.plants[1].get_shade()
-        self.plants[1].age = 1825
-        self.plants[1].height = 500
-        self.plants[1].get_shade()
-        self.plants[1].age += 1825*20
-        self.plants[1].get_shade()
-        print(self.plants[1])
-        print()
-        self.plants[2].nutrional_value()
-        self.plants[2].height = 100
-        self.plants[2].nutrional_value()
-        self.plants[2].age = 100
-        self.plants[2].nutrional_value()
-        print("")
-
-    def verify(self):
-        for p in self.plants:
-            print(f"Created: {p}")
-        print("")
-        print(f"Total plants created: {self.n}")
+            plant.ability()
 
 
 def build_dict() -> dict:
+    """Build a dict of plant info."""
     return {
         "Rose": ("Flower", 25, 30, "red"),
         "Oak": ("Tree", 500, 1825, 50),
-        "Cactus": ("Vegetable", 80, 90, "summer"),
+        "Tomato": ("Vegetable", 80, 90, "summer"),
+        "Clover": ("Flower", 10, 25, "green"),
+        "Beech": ("Tree", 300, 100, 30),
+        "Squash": ("Vegetable", 60, 100, "autumn"),
         }
 
 
 def plant_factory(plant_dict: dict) -> list:
+    """Generate a list of plants."""
     r_list = []
     for k, v in plant_dict.items():
         if v[0] == "Flower":
@@ -244,16 +361,12 @@ def plant_factory(plant_dict: dict) -> list:
     return r_list
 
 
-def main():
+def main() -> None:
+    """Build plant dict, create list of plants and run ex5 test."""
     print("=== Garden Plant Types ===")
     p_dict = build_dict()
     garden = Garden(plant_factory(p_dict))
-    # garden.verify()
-    garden.ex5()
-
-# def _age_pants(plnt: SecurePlant, days: int):
-#    plnt
-# def _from_dict(key: str, val: tuple)->SecurePlant:
+    garden.print_garden()
 
 
 if __name__ == "__main__":
