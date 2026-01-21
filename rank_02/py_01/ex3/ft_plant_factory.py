@@ -4,10 +4,10 @@
 #                                                        :::      ::::::::    #
 #    ft_plant_factory.py                               :+:      :+:    :+:    #
 #                                                    +:+ +:+         +:+      #
-#    By: potz <maprunty@student.42.fr>             +#+  +:+       +#+         #
+#    By: maprunty <maprunty@student.42.fr>         +#+  +:+       +#+         #
 #                                                +#+#+#+#+#+   +#+            #
-#    Created: 2026/01/19 00:36:38 by potz             #+#    #+#              #
-#    Updated: 2026/01/19 05:43:14 by potz            ###   ########.fr        #
+#    Created: 2026/01/19 00:36:38 by maprunty         #+#    #+#              #
+#    Updated: 2026/01/21 21:01:46 by maprunty        ###   ########.fr        #
 #                                                                             #
 # *************************************************************************** #
 """Creat multiple Plant instances and verify."""

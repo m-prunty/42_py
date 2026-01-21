@@ -7,7 +7,7 @@
 #    By: maprunty <maprunty@student.42heilbronn.d  +#+  +:+       +#+         #
 #                                                +#+#+#+#+#+   +#+            #
 #    Created: 2026/01/17 08:12:07 by maprunty         #+#    #+#              #
-#    Updated: 2026/01/18 21:04:00 by potz            ###   ########.fr        #
+#    Updated: 2026/01/21 21:02:06 by maprunty        ###   ########.fr        #
 #                                                                             #
 # *************************************************************************** #
 """Print plant name height and age."""

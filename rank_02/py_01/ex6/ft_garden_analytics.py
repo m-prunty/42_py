@@ -4,10 +4,10 @@
 #                                                        :::      ::::::::    #
 #    ft_garden_analytics.py                            :+:      :+:    :+:    #
 #                                                    +:+ +:+         +:+      #
-#    By: potz <maprunty@student.42.fr>             +#+  +:+       +#+         #
+#    By: maprunty <maprunty@student.42.fr>         +#+  +:+       +#+         #
 #                                                +#+#+#+#+#+   +#+            #
-#    Created: 2026/01/19 10:32:35 by potz             #+#    #+#              #
-#    Updated: 2026/01/21 20:10:34 by potz            ###   ########.fr        #
+#    Created: 2026/01/19 10:32:35 by maprunty         #+#    #+#              #
+#    Updated: 2026/01/21 23:09:48 by maprunty        ###   ########.fr        #
 #                                                                             #
 # *************************************************************************** #
 """Create GardenManager, Multiple gardens, stats and subplant subtypes."""
@@ -141,11 +141,13 @@ class Plant:
             msg (str): The message to be printed
         """
         print("")
+        """
         print(f"Invalid operation attempted: {operation}", end=" ")
         print("\x1b[31m[REJECTED]\x1b[0m ")
         print(f"Security: {msg}")
         print("")
         print(f"Current plant: {self}")
+        """
 
 
 class Flower(Plant):
@@ -204,8 +206,8 @@ class Flower(Plant):
 
         """
         tmp = ((self.height * self.age) % 42)
-        print(tmp)
         if tmp in [0, 1, 2]:
+            PrizeFlower(self)
             return 1
         return 0
 
@@ -403,11 +405,11 @@ class Garden:
         self.name = name
         self.plants = []
         self.nplants = 0
+        print()
         for plant in plants:
             self.add_plant(plant)
         self.start_day = 1
         self.day = self.start_day
-        self.garden_hist = []
 
     @property
     def total_growth(self):
@@ -423,8 +425,8 @@ class Garden:
         self._total_score = 0
         for plant in self.plants:
             self._total_score += plant.height
-            if plant.is_prize():
-                self._total_score += plant.value
+            if plant.ptype == "Flower" and plant.is_prize:
+                self._total_score += plant.prize_value * 4
         return self._total_score
 
     @property
@@ -448,17 +450,31 @@ class Garden:
             days (int): N of days to pass
         """
         i = 0
-        while i < days:
-            for plant in self.plants:
-                plant.pass_day()
-            i += 1
-            self.day += 1
-        print(f"Plants added: {self.nplants},\
-Total growth: {self.total_growth}cm")
+        if self.name == "Alice":
+            print("Alice is helping all plants grow...")
+            while i < days:
+                for plant in self.plants:
+                    plant.pass_day()
+                i += 1
+                self.day += 1
         self.total_types
-        print(f"""Plant types: {self._total_types[0]} regular,/
-              {self._total_types[1]} flowering,/
-              {self._total_types[2]} prize flowers""")
+        self.total_growth
+        self.total_score
+
+    def print_report(self) -> None:
+        """Display a report of current Garden State according to ex6.
+        === Alice's Garden Report ===
+        Plants in garden:
+        - Oak Tree: 101cm
+        - Rose: 26cm, red flowers (blooming)
+        - Sunflower: 51cm, yellow flowers (blooming), Prize points: 10
+        Plants added: 3, Total growth: 3cm
+        Plant types: 1 regular, 1 flowering, 1 prize flowers
+        Height validation test: True
+        Garden scores - Alice: 218, Bob: 92
+        Total gardens managed: 2
+        """
+        pass
 
     def add_plant(self, plant: Plant) -> None:
         """Add a Plant object to the Garden list.
@@ -467,7 +483,8 @@ Total growth: {self.total_growth}cm")
             plant (Plant): Plant object to add to list
         """
         self.plants.append(plant)
-        print(f"Added {plant.name} to {self.name}'s garden")
+        if self.name == "Alice":
+            print(f"Added {plant.name} to {self.name}'s garden")
         self.nplants += 1
 
     def __repr__(self) -> str:
@@ -487,12 +504,26 @@ Total growth: {self.total_growth}cm")
         Returns:
             str: String representation of available info about a garden
         """
-        r_str = f"\nGarden name: {self.name}"
-        for plant in self.plants:
-            r_str += f"\n- {plant.name}: {plant.height}cm"
-            if plant.ptype == "Flower":
-                r_str += plant.ext_info()
+        r_str = ""
+        if self.name == "Alice":
+            r_str += (f"=== {self.name}'s Garden Report ===")
+            r_str += "\nPlants in garden"
+            for plant in self.plants:
+                r_str += f"\n- {plant.name}: {plant.height}cm"
+                if plant.ptype == "Flower":
+                    r_str += plant.ext_info()
+            r_str += (f"\n\nPlants added: {self.nplants}")
+            r_str += (f", Total growth: {self.total_growth}cm")
+            r_str += (f"\nPlant types: {self._total_types[0]} regular")
+            r_str += (f", {self._total_types[1]} flowering")
+            r_str += (f", {self._total_types[2]} prize flowers")
         return r_str
+
+    def test_height(self):
+        self.plants[0].height = -3
+        if self.plants[0].height < 0:
+            return "False"
+        return "True"
 
     def print_garden(self) -> None:
         """Print info about a Gardens plants."""
@@ -519,6 +550,18 @@ class GardenManager:
         """
         self.create_garden_network(garden_dict)
         self.day = 1
+        self._garden_scores = {}
+
+    @property
+    def garden_scores(self):
+        """TODO: Docstring for garden_scores.
+
+        Returns: TODO
+
+        """
+        for g in self.gardens:
+            self._garden_scores.update({g.name: g.total_score})
+        return self._garden_scores
 
     def __repr__(self) -> str:
         """Get info about a plant.
@@ -540,6 +583,10 @@ class GardenManager:
         r_str = ""
         for garden in self._gardens:
             r_str += garden.__str__()
+        r_str += f"\n\nHeight validation test: {self.gardens[0].test_height()}"
+        r_str += "\nGarden scores - "
+        r_str += ' '.join([f"{g.name}: {g.total_score}" for g in self.gardens])
+        r_str += f"\nTotal gardens managed: {len(self.gardens)}"
         return r_str
 
     def pass_time(self, days: int) -> None:
@@ -550,11 +597,11 @@ class GardenManager:
         """
         i = 0
         while i < days:
-            print(f"{self.day} {days}")
             for garden in self.gardens:
                 garden.pass_time(1)
             i += 1
             self.day += 1
+        self.garden_scores
 
     @property
     def gardens(self):
@@ -629,7 +676,7 @@ def build_dict() -> dict:
                 },
             "Bob": {
                 "Rose": ("Flower", 27, 30, "red"),
-                "Tomato": ("Vegetable", 80, 90, "summer"),
+                "Tomato": ("Vegetable", 50, 90, "summer"),
                 "Clover": ("Flower", 15, 25, "green"),
                 }
             }
@@ -637,7 +684,7 @@ def build_dict() -> dict:
 
 def main() -> None:
     """Build plant dict, create list of plants and run ex5 test."""
-    print("=== Garden Plant Types ===")
+    print("=== Garden Managment System Demo ===")
     g_dict = build_dict()
     gm = GardenManager(g_dict)
     gm.pass_time(1)

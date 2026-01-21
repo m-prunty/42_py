@@ -7,7 +7,7 @@
 #    By: maprunty <maprunty@student.42heilbronn.d  +#+  +:+       +#+         #
 #                                                +#+#+#+#+#+   +#+            #
 #    Created: 2026/01/17 12:46:23 by maprunty         #+#    #+#              #
-#    Updated: 2026/01/19 02:35:31 by potz            ###   ########.fr        #
+#    Updated: 2026/01/21 20:55:32 by maprunty        ###   ########.fr        #
 #                                                                             #
 # *************************************************************************** #
 """Track how plants change and provide operations to modify their state."""

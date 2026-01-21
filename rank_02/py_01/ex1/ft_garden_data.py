@@ -7,7 +7,7 @@
 #    By: maprunty <maprunty@student.42heilbronn.d  +#+  +:+       +#+         #
 #                                                +#+#+#+#+#+   +#+            #
 #    Created: 2026/01/17 10:45:49 by maprunty         #+#    #+#              #
-#    Updated: 2026/01/18 21:04:28 by potz            ###   ########.fr        #
+#    Updated: 2026/01/18 21:04:28 by maprunty        ###   ########.fr        #
 #                                                                             #
 # *************************************************************************** #
 """Create an instance of plant and print the info."""

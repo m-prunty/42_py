@@ -4,10 +4,10 @@
 #                                                        :::      ::::::::    #
 #    ft_plant_types.py                                 :+:      :+:    :+:    #
 #                                                    +:+ +:+         +:+      #
-#    By: potz <maprunty@student.42.fr>             +#+  +:+       +#+         #
+#    By: maprunty <maprunty@student.42.fr>         +#+  +:+       +#+         #
 #                                                +#+#+#+#+#+   +#+            #
-#    Created: 2026/01/19 06:25:32 by potz             #+#    #+#              #
-#    Updated: 2026/01/19 10:21:29 by potz            ###   ########.fr        #
+#    Created: 2026/01/19 06:25:32 by maprunty         #+#    #+#              #
+#    Updated: 2026/01/19 10:21:29 by maprunty        ###   ########.fr        #
 #                                                                             #
 # *************************************************************************** #
 """Create Specialised Plant types and their corresponding info."""
