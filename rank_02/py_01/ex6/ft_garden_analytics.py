@@ -7,7 +7,7 @@
 #    By: potz <maprunty@student.42.fr>             +#+  +:+       +#+         #
 #                                                +#+#+#+#+#+   +#+            #
 #    Created: 2026/01/19 10:32:35 by potz             #+#    #+#              #
-#    Updated: 2026/01/20 20:11:17 by potz            ###   ########.fr        #
+#    Updated: 2026/01/21 20:10:34 by potz            ###   ########.fr        #
 #                                                                             #
 # *************************************************************************** #
 """Create GardenManager, Multiple gardens, stats and subplant subtypes."""
@@ -63,8 +63,8 @@ class Plant:
         """Securely set a plants height."""
         if height >= 0:
             self._height = height
-            print(f"Height updated: {self._height}cm", end=" ")
-            print("\x1b[32m[OK]\x1b[0m")
+#            print(f"Height updated: {self._height}cm", end=" ")
+#            print("\x1b[32m[OK]\x1b[0m")
         else:
             self.print_err(
                     f"height {height}cm", "Neg height rejected")
@@ -83,8 +83,8 @@ class Plant:
         """Securely set a plants age."""
         if age >= 0:
             self._age = age
-            print(f"Age updated: {self._age} days old", end=" ")
-            print("\x1b[32m[OK]\x1b[0m")
+#            print(f"Age updated: {self._age} days old", end=" ")
+#            print("\x1b[32m[OK]\x1b[0m")
         else:
             self.print_err(f"Age {age}", "Neg age rejected")
 
@@ -100,6 +100,7 @@ class Plant:
         """Simulate the passing of a day for a plant."""
         self.age += 1
         self.height += self.growrate
+        print(f"{self.name} grew {self.growrate}cm")
 
     def __repr__(self) -> str:
         """Get info about a plant.
@@ -107,11 +108,11 @@ class Plant:
         returns:
             str: string representation of available info about a plant
         """
-        ret_string = f"{self.name}: "
+        ret_string = f"{self.name}"
         if self.height:
-            ret_string += f"{self.height}cm"
+            ret_string += f", {self.height}"
         if self.age:
-            ret_string += f", {self.age} days"
+            ret_string += f", {self.age}"
         ret_string += self.ext_info()
         return ret_string
 
@@ -121,10 +122,7 @@ class Plant:
         returns:
             str: string representation of available info about a plant
         """
-        tmp = self.age
-        self.age = 0
-        ret_string = self.__repr__()
-        self.age = tmp
+        ret_string = f"{self.name}: {self.height}cm{self.ext_info()}"
         return ret_string
 
     def ext_info(self) -> str:
@@ -179,7 +177,10 @@ class Flower(Plant):
             str: Plant info, Flower specific colour
         """
         blooming = self.in_bloom()
-        return f", {self.colour} flowers ({blooming})"
+        r_str = f", {self.colour} flowers ({blooming})"
+        if self.is_prize:
+            r_str += PrizeFlower(self).__str__()
+        return r_str
 
     @property
     def colour(self) -> str:
@@ -194,6 +195,19 @@ class Flower(Plant):
     def colour(self, colour) -> None:
         """Set a flowers colour property."""
         self._colour = colour
+
+    @property
+    def is_prize(self):
+        """TODO: Docstring for is_prize.
+
+        Returns: TODO
+
+        """
+        tmp = ((self.height * self.age) % 42)
+        print(tmp)
+        if tmp in [0, 1, 2]:
+            return 1
+        return 0
 
     def ability(self) -> None:
         """Plants special ability."""
@@ -210,16 +224,16 @@ class Flower(Plant):
         Returns:
             str: Representation of flower state
         """
-        tmp = self.height
-        if tmp < 25:
+        tmp = self.height * self.age
+        if tmp < 350:
             return "not ready to bloom yet"
-        elif self.age and self.age * self.height < 3000:
+        elif tmp > 3000:
             return "probably dead..."
         else:
             return "blooming"
 
 
-class PrizeFlower(Flower):
+class PrizeFlower:
     """Represent a PrizeFlower and its info.
 
     Inherits from:
@@ -229,8 +243,8 @@ class PrizeFlower(Flower):
         prize_value (int): the n of prize points
     """
 
-    def __init__(self, name: str, height: int, age: int, colour: str) -> None:
-        """Initialise a Flower object.
+    def __init__(self, flower: Flower) -> None:
+        """Initialise a Flower object .
 
         Args:
             name (str): Name of Flower
@@ -238,16 +252,17 @@ class PrizeFlower(Flower):
             age (int): Initial age in days
             colour (str): the colour of the flower
         """
-        super().__init__(name, height, age, colour)
-        self.prize_value = 10
+        # super().__init__(name, height, age, colour)
+        self.flower = flower
+        self.flower.prize_value = 10
 
-    def ext_info(self) -> None:
+    def __str__(self) -> None:
         """Extra info for PrizeFlower(flower) class.
 
         Returns:
             str: Prizeflower info, Prize points
         """
-        return f", {super.ext_info()}, Prize points: {self.prize_value}"
+        return f", Prize points: {self.flower.prize_value}"
 
 
 class Tree(Plant):
@@ -387,6 +402,7 @@ class Garden:
         """
         self.name = name
         self.plants = []
+        self.nplants = 0
         for plant in plants:
             self.add_plant(plant)
         self.start_day = 1
@@ -394,11 +410,36 @@ class Garden:
         self.garden_hist = []
 
     @property
-    def daily_count(self):
+    def total_growth(self):
         """Calculate the growth of all plants."""
+        self._total_growth = 0
         for plant in self.plants:
-            self.total_growth += plant.height
-        return [self.nplants, self.total_growth]
+            self._total_growth += plant.growrate
+        return self._total_growth
+
+    @property
+    def total_score(self):
+        """Calculate the growth of all plants."""
+        self._total_score = 0
+        for plant in self.plants:
+            self._total_score += plant.height
+            if plant.is_prize():
+                self._total_score += plant.value
+        return self._total_score
+
+    @property
+    def total_types(self):
+        """Calculate the growth of all plants."""
+        self._total_types = [0, 0, 0]
+        for plant in self.plants:
+            if plant.ptype == "Flower":
+                if plant.is_prize:
+                    self._total_types[2] += 1
+                else:
+                    self._total_types[1] += 1
+            else:
+                self._total_types[0] += 1
+        return self._total_types
 
     def pass_time(self, days: int) -> None:
         """Simulate time until days passed.
@@ -406,10 +447,18 @@ class Garden:
         Args:
             days (int): N of days to pass
         """
-        while self.day < days:
+        i = 0
+        while i < days:
             for plant in self.plants:
                 plant.pass_day()
+            i += 1
             self.day += 1
+        print(f"Plants added: {self.nplants},\
+Total growth: {self.total_growth}cm")
+        self.total_types
+        print(f"""Plant types: {self._total_types[0]} regular,/
+              {self._total_types[1]} flowering,/
+              {self._total_types[2]} prize flowers""")
 
     def add_plant(self, plant: Plant) -> None:
         """Add a Plant object to the Garden list.
@@ -418,7 +467,8 @@ class Garden:
             plant (Plant): Plant object to add to list
         """
         self.plants.append(plant)
-        self.nplants = 1
+        print(f"Added {plant.name} to {self.name}'s garden")
+        self.nplants += 1
 
     def __repr__(self) -> str:
         """Get info about plants in a garden.
@@ -439,7 +489,9 @@ class Garden:
         """
         r_str = f"\nGarden name: {self.name}"
         for plant in self.plants:
-            r_str += f"\n{plant.__str__()},"
+            r_str += f"\n- {plant.name}: {plant.height}cm"
+            if plant.ptype == "Flower":
+                r_str += plant.ext_info()
         return r_str
 
     def print_garden(self) -> None:
@@ -466,6 +518,7 @@ class GardenManager:
             gardens (list(Garden)): List of gardens
         """
         self.create_garden_network(garden_dict)
+        self.day = 1
 
     def __repr__(self) -> str:
         """Get info about a plant.
@@ -477,6 +530,31 @@ class GardenManager:
         for garden in self._gardens:
             r_str += garden.__repr__()
         return r_str
+
+    def __str__(self) -> str:
+        """Get info about a plant.
+
+        Returns:
+            str: String representation of available info about a plant
+        """
+        r_str = ""
+        for garden in self._gardens:
+            r_str += garden.__str__()
+        return r_str
+
+    def pass_time(self, days: int) -> None:
+        """Simulate time until days passed.
+
+        Args:
+            days (int): N of days to pass
+        """
+        i = 0
+        while i < days:
+            print(f"{self.day} {days}")
+            for garden in self.gardens:
+                garden.pass_time(1)
+            i += 1
+            self.day += 1
 
     @property
     def gardens(self):
@@ -545,16 +623,14 @@ def build_dict() -> dict:
     """Build a dict of plant info."""
     return {
             "Alice": {
+                "Oak Tree": ("Tree", 100, 825, 32),
                 "Rose": ("Flower", 25, 30, "red"),
-                "Oak": ("Tree", 100, 825, 32),
-                "Sunflower": ("Flower", 50, 84, "yellow")
+                "Sunflower": ("Flower", 50, 41, "yellow")
                 },
             "Bob": {
-                "Rose": ("Flower", 25, 30, "red"),
+                "Rose": ("Flower", 27, 30, "red"),
                 "Tomato": ("Vegetable", 80, 90, "summer"),
-                "Clover": ("Flower", 10, 25, "green"),
-                "Beech": ("Tree", 300, 100, 30),
-                "Squash": ("Vegetable", 60, 100, "autumn"),
+                "Clover": ("Flower", 15, 25, "green"),
                 }
             }
 
@@ -564,6 +640,7 @@ def main() -> None:
     print("=== Garden Plant Types ===")
     g_dict = build_dict()
     gm = GardenManager(g_dict)
+    gm.pass_time(1)
     print(gm)
 
 
