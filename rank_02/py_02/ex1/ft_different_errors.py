@@ -7,7 +7,7 @@
 #    By: maprunty <maprunty@student.42.fr>         +#+  +:+       +#+         #
 #                                                +#+#+#+#+#+   +#+            #
 #    Created: 2026/01/22 02:01:23 by maprunty         #+#    #+#              #
-#    Updated: 2026/01/22 03:19:16 by maprunty        ###   ########.fr        #
+#    Updated: 2026/01/22 07:26:52 by maprunty        ###   ########.fr        #
 #                                                                             #
 # *************************************************************************** #
 """A first look at exceptions."""
@@ -26,7 +26,7 @@ def garden_operations(i: int):
         if i == "missing\\_plant":
             d[i]
         x = int(i)
-        10/x
+        _ = 10/x
         if x == 4:
             try:
                 x/0 and d[x]

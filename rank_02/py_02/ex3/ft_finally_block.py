@@ -7,7 +7,7 @@
 #    By: maprunty <maprunty@student.42.fr>         +#+  +:+       +#+         #
 #                                                +#+#+#+#+#+   +#+            #
 #    Created: 2026/01/22 02:01:27 by maprunty         #+#    #+#              #
-#    Updated: 2026/01/22 05:53:40 by maprunty        ###   ########.fr        #
+#    Updated: 2026/01/22 07:36:58 by maprunty        ###   ########.fr        #
 #                                                                             #
 # *************************************************************************** #
 """Intro to the finally block."""
@@ -36,16 +36,22 @@ class Plant:
 def water_plants(plant_list: list[Plant]) -> None:
     """Water a list of Plants."""
     print("Opening watering system")
+    err = False
     try:
         for p in plant_list:
             if p.name:
                 print(f"Watering {p.name}")
             else:
                 raise Exception
+        return
     except Exception:
+        err = True
         print(f"Error: Cannot water {p.name} - invalid plant!")
+        return
     finally:
         print("Closing watering system (cleanup)")
+        if not err:
+            print("Watering completed successfully!")
 
 
 def test_watering_system() -> None:
