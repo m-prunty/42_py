@@ -7,7 +7,7 @@
 #    By: potz <maprunty@student.42.fr>             +#+  +:+       +#+         #
 #                                                +#+#+#+#+#+   +#+            #
 #    Created: 2026/01/23 02:21:53 by potz             #+#    #+#              #
-#    Updated: 2026/01/23 11:24:16 by potz            ###   ########.fr        #
+#    Updated: 2026/01/23 11:41:09 by potz            ###   ########.fr        #
 #                                                                             #
 # *************************************************************************** #
 """Build a 3D coordinate system using tuples.
@@ -207,10 +207,12 @@ class Player(object):
 
     def __str__(self):
         r_str = ""
-        for i in self.pos:
-           r_str += f"{i}"
+        i = 0
+        while i :
+           r_str += f"{self.pos[i]}"
+           i += 1
         return r_str
-
+    
     @property
     def pos(self) -> Vec3:
         """doc"""
