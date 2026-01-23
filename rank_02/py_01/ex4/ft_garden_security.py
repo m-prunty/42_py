@@ -4,10 +4,10 @@
 #                                                        :::      ::::::::    #
 #    ft_garden_security.py                             :+:      :+:    :+:    #
 #                                                    +:+ +:+         +:+      #
-#    By: potz <maprunty@student.42.fr>             +#+  +:+       +#+         #
+#    By: maprunty <maprunty@student.42.fr>         +#+  +:+       +#+         #
 #                                                +#+#+#+#+#+   +#+            #
-#    Created: 2026/01/19 02:37:31 by potz             #+#    #+#              #
-#    Updated: 2026/01/19 06:23:38 by potz            ###   ########.fr        #
+#    Created: 2026/01/19 02:37:31 by maprunty         #+#    #+#              #
+#    Updated: 2026/01/21 21:01:29 by maprunty        ###   ########.fr        #
 #                                                                             #
 # *************************************************************************** #
 """Create secure methods for getting and setting SecurePlant info."""
