@@ -7,7 +7,7 @@
 #    By: potz <maprunty@student.42.fr>             +#+  +:+       +#+         #
 #                                                +#+#+#+#+#+   +#+            #
 #    Created: 2026/01/23 02:21:53 by potz             #+#    #+#              #
-#    Updated: 2026/01/23 11:41:09 by potz            ###   ########.fr        #
+#    Updated: 2026/01/23 14:40:50 by potz            ###   ########.fr        #
 #                                                                             #
 # *************************************************************************** #
 """Build a 3D coordinate system using tuples.
@@ -50,76 +50,77 @@ class Vec3():
             self.z = z
         except Exception as e:
             print(e)
-         #   raise ValueError(e)
+            # raise ValueError(e)
 
     def __add__(self, other):
-        """Adds a vec3 instance with another."""
+        """Add a vec3 instance with another."""
         return Vec3(self.x + other.x,
                     self.y + other.y,
                     self.z + other.z,
                     )
-    
+
     def __sub__(self, other):
-        """Subs a vec3 instance with another."""
+        """Sub a vec3 instance with another."""
         return Vec3(self.x - other.x,
                     self.y - other.y,
                     self.z - other.z,
                     )
-     
+
     def __abs__(self):
-        """Returns magnitude of a vector."""
+        """Return magnitude of a vector."""
         return sqrt(self.x**2 + self.y**2 + self.z**2)
-    
+
     def __repr__(self):
         """Return a tuple represantation of a Vec3 instance."""
         return (self.x, self.y, self.z)
-    
+
     def __str__(self):
         """Return a str tuple represantation of a Vec3 instance."""
-        return f"{self.__repr__()}" 
-    
+        return f"{self.__repr__()}"
+
     def __iter__(self):
-        """Return a str tuple represantation of a Vec3 instance."""
+        """Return a tuple iterable  represantation of a Vec3 instance."""
         return iter(self.__repr__())
-    
+
     @property
     def x(self) -> int:
-        """doc"""
+        """doc."""
         return self._x
-    
+
     @x.setter
     def x(self, value: int):
         try:
             self._x = int(value)
         except ValueError as ve:
-            print(f"Error parsing coordinates: {ve}")
-            self._x = 0 
-            raise ValueError(ve)
-    
+            r_str = (f"Error parsing coordinates: {ve}")
+            self._x = 0
+            raise ValueError(r_str)
+
     @staticmethod
     def ft_split(string: str, char: str):
         """TODO: Docstring for ft_split.
+
         Returns: TODO
 
         """
         i = 0
         j = 0
-        l = len(string)
+        n = len(string)
         r_list = []
-        while i < l:
-            while i < l and string[i] == char[0]:
+        while i < n:
+            while i < n and string[i] == char[0]:
                 i += 1
-            if i < l and string[i] != char[0]:
+            if i < n and string[i] != char[0]:
                 if char not in string[i:]:
-                    j = l
+                    j = n
                 else:
                     j = i
-                    while j < l and string[j] != char[0]:
+                    while j < n and string[j] != char[0]:
                         j += 1
-                r_list += [string[i:j]] 
+                r_list += [string[i:j]]
                 i += j - i
         return r_list
-    
+
     @classmethod
     def from_str(cls, coord: str) -> "Vec3":
         """TODO: Docstring for from_str.
@@ -136,13 +137,13 @@ class Vec3():
             lst = cls.parse_args(len(lst), lst)
             return cls(lst[0], lst[1], lst[2])
         except Exception as e:
-            print(f"Error details - Type: {e.__class__.__name__}", end='')
-            print(f", Args: (\"{e.args[0]}\",)")
+            r_str = (f"Error details - Type: {e.__class__.__name__}")
+            r_str += (f", Args: (\"{e.args[0]}\",)")
+            raise ValueError(r_str)
 
-    
     @classmethod
     def assign_coord(cls, lst: list[int]):
-        """TODO: Docstring for assign_coord.
+        """Docstring for assign_coord.
 
         Args:
             lst (list [int]): TODO
@@ -150,11 +151,10 @@ class Vec3():
         Returns: TODO
 
         """
-        
         print(len(lst), lst)
         try:
             if len(lst) > 3:
-               raise ValueError 
+                raise ValueError
             cls.x: int = lst[0]
             cls.y: int = lst[1]
             cls.z: int = lst[2]
@@ -162,20 +162,7 @@ class Vec3():
             print(f"ierr>>>{ve}")
         except IndexError as ie:
             print(f"ierr>>>{ie}")
-    
-    @staticmethod
-    def is_int(i: int):
-        """TODO: Docstring for is_int.
-        Returns: TODO
 
-        """
-        r_i = None
-        try:
-            r_i = int(i)
-        except ValueError as ve:
-            print(f"ierr>>>{ve}")
-
-    
     @staticmethod
     def parse_args(ac: int, av: list) -> list[int]:
         """TODO: Docstring for get_args.
@@ -192,51 +179,70 @@ class Vec3():
             try:
                 r_lst += [int(av[i])]
             except ValueError as ve:
-                print(f"Error parsing coordinates: {ve}")
-                raise ValueError(ve)
+                r_str = (f"Error parsing coordinates: {ve}")
+                raise ValueError(r_str)
             i += 1
         return r_lst
 
-class Player(object):
 
-    """Docstring for Player. """
+class Player(object):
+    """Player class."""
 
     def __init__(self, start_pos: Vec3):
-        """TODO: to be defined. """
+        """TODO: to be defined."""
         self.pos = start_pos
 
     def __str__(self):
+        """Return a str represantation of a Player instance."""
         r_str = ""
-        i = 0
-        while i :
-           r_str += f"{self.pos[i]}"
-           i += 1
+        x, y, z = [3, 4, 0]
+        r_str += "\nUnpacking Demonstation:"
+        def co_str(x, y, z): return f"x={x}, y={y}, x={z}\n"
+        r_str += f"\nPlayer at {co_str(x, y, z)}"
+        x, y, z = self.pos
+        r_str += f"Coordinates: {co_str(x, y, z).upper()}"
         return r_str
-    
+
     @property
     def pos(self) -> Vec3:
-        """doc"""
+        """pos."""
         return self._pos
-    
+
     @pos.setter
     def pos(self, value: Vec3):
+        """pos."""
         self._pos = value
 
     def teleport(self, to: Vec3):
+        """Teleport to."""
         self.pos = to
-    
-        
+
+
 def first_start():
+    """Primer function display output from e.g."""
     start_pos = Vec3(10, 20, 5)
-    print(start_pos)
+    r_str = (f"\nPosition crerated: {start_pos}")
     origin = Vec3()
-    print(abs(origin - start_pos))
-    new = Vec3.from_str("3,4,0")
-    print(new)
-    new2 = Vec3.from_str("iabc,cds,asjkl")
+    r_str += (f"\nDistance between {origin} and {start_pos}")
+    r_str += f":{abs(origin - start_pos): .2f}\n"
+    str_coords = "3,4,0"
+    r_str += (f"\nParsing coordinates: \"{str_coords}\"")
+    start_pos = new = Vec3.from_str(str_coords)
+    r_str += (f"\nParsed position: {new}")
+    r_str += (f"\nDistance between {origin} and {start_pos}")
+    r_str += f":{abs(origin - start_pos): .1f}\n"
+    str_coords = "abc,def,asjkl"
+    r_str += (f"\nParsing invalid coordinates: {str_coords}")
+    try:
+        new2 = Vec3.from_str(str_coords)
+        _ = new2
+    except Exception as e:
+        r_str += e.__str__()
     p = Player(origin)
     p.teleport(new)
-    print(p)
+    r_str += f"{p}"
+    return (r_str)
+
 
 def main():
     """TODO: Docstring for main.
@@ -248,9 +254,11 @@ def main():
     av = []
     if ac <= 1:
         print("No arguments provided!")
-        first_start()
+        print(first_start())
     else:
         print(f"Total arguments: {ac}")
+        for a in av:
+            print(a)
     # print(f"Program name: {sc}")
 
 
