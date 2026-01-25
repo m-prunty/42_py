@@ -7,7 +7,7 @@
 #    By: potz <maprunty@student.42.fr>             +#+  +:+       +#+         #
 #                                                +#+#+#+#+#+   +#+            #
 #    Created: 2026/01/23 02:21:53 by potz             #+#    #+#              #
-#    Updated: 2026/01/23 14:40:50 by potz            ###   ########.fr        #
+#    Updated: 2026/01/24 08:25:41 by maprunty        ###   ########.fr        #
 #                                                                             #
 # *************************************************************************** #
 """Build a 3D coordinate system using tuples.
@@ -250,8 +250,8 @@ def main():
     Returns: TODO
 
     """
-    ac = len(sys.argv)
-    av = []
+    av = sys.argv
+    ac = len(av)
     if ac <= 1:
         print("No arguments provided!")
         print(first_start())

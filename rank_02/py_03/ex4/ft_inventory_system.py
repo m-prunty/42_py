@@ -7,7 +7,7 @@
 #    By: maprunty <maprunty@student.42.fr>         +#+  +:+       +#+         #
 #                                                +#+#+#+#+#+   +#+            #
 #    Created: 2026/01/24 00:24:59 by maprunty         #+#    #+#              #
-#    Updated: 2026/01/24 04:58:48 by maprunty        ###   ########.fr        #
+#    Updated: 2026/01/24 10:44:35 by maprunty        ###   ########.fr        #
 #                                                                             #
 # *************************************************************************** #
 """Basic inventory tracking systems.
@@ -186,7 +186,7 @@ class ATracker:
         for p in player_lst:
             items |= set(p.inventory)
         print(p, items)
-        p_set -= items
+        p_set ^= items
         return p_set
 
     @staticmethod
