@@ -7,37 +7,38 @@
 #    By: maprunty <maprunty@student.42.fr>         +#+  +:+       +#+         #
 #                                                +#+#+#+#+#+   +#+            #
 #    Created: 2026/01/22 00:44:03 by maprunty         #+#    #+#              #
-#    Updated: 2026/01/22 02:33:19 by maprunty        ###   ########.fr        #
+#    Updated: 2026/01/26 07:14:39 by maprunty        ###   ########.fr        #
 #                                                                             #
 # *************************************************************************** #
-"""A first look at exceptions."""
+"""Exercise 0: Agricultural Data Validation Pipeline.
+
+A first look at exceptions.
+"""
 
 
 def check_temperature(temp_str: str) -> int | None:
     """Check if the temperature is reasonable for plants.
 
     Returns:
-        int : Value of temp if optimal
+        int | None : Value of temp if optimal, otherwise None
 
     Raises:
-        ValueError if not an int or tmep is not optimal
+        ValueError: if not an int or tmep is not optimal
     """
     min_val = 0
     max_val = 40
     temp = None
     try:
         temp = int(temp_str)
-        if min_val > temp or temp > max_val:
-            raise ValueError
+        if min_val > temp:
+            raise ValueError(f"is too cold (min {min_val})°C")
+        elif max_val < temp:
+            raise ValueError(f"is too hot (max {max_val})°C")
         print(f"Temperature {temp}°C is perfect for plants!")
         return temp
-
-    except ValueError:
-        if temp:
-            if temp <= min_val:
-                print(f"Error: {temp}°C is too cold (min {min_val})°C")
-            if temp >= max_val:
-                print(f"Error: {temp}°C is too hot (max {max_val})°C")
+    except ValueError as ve:
+        if temp is not None:
+            print(f"Error: {temp}°C {ve}")
         else:
             print(f"Error: '{temp_str}' is not a valid number")
 

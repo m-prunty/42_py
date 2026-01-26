@@ -7,10 +7,13 @@
 #    By: maprunty <maprunty@student.42.fr>         +#+  +:+       +#+         #
 #                                                +#+#+#+#+#+   +#+            #
 #    Created: 2026/01/22 02:01:27 by maprunty         #+#    #+#              #
-#    Updated: 2026/01/22 07:36:58 by maprunty        ###   ########.fr        #
+#    Updated: 2026/01/26 07:40:25 by maprunty        ###   ########.fr        #
 #                                                                             #
 # *************************************************************************** #
-"""Intro to the finally block."""
+"""Exercise 3: Finally Block - Always Clean Up.
+
+Intro to the finally block.
+"""
 
 
 class Plant:
@@ -27,7 +30,6 @@ class Plant:
         Args:
             name (str): Name of plant
             water_level (int): Initial water_level in cm
-            age (int): Initial age in days
         """
         self.name = name
         self.water_level = water_level

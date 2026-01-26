@@ -7,17 +7,23 @@
 #    By: maprunty <maprunty@student.42.fr>         +#+  +:+       +#+         #
 #                                                +#+#+#+#+#+   +#+            #
 #    Created: 2026/01/22 02:01:23 by maprunty         #+#    #+#              #
-#    Updated: 2026/01/22 07:26:52 by maprunty        ###   ########.fr        #
+#    Updated: 2026/01/26 07:26:42 by maprunty        ###   ########.fr        #
 #                                                                             #
 # *************************************************************************** #
-"""A first look at exceptions."""
+"""Exercise 1: Different Types of Problems first look at exceptions.
+
+Looking at multiple different exception types.
+"""
 
 
 def garden_operations(i: int):
-    """TODO: Docstring for garden_operations.
+    """Mix of Garden operations to test Exceptions.
 
-    Returns: TODO
-
+    Raises:
+        ValueError: if not an int or tmep is not optimal
+        ZeroDivisionError: division by zero
+        FileNotFoundError: when no such file
+        KeyError: where key doesn't exist
     """
     d = {}
     try:

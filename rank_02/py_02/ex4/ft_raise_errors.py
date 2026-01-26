@@ -7,48 +7,55 @@
 #    By: maprunty <maprunty@student.42.fr>         +#+  +:+       +#+         #
 #                                                +#+#+#+#+#+   +#+            #
 #    Created: 2026/01/22 02:01:28 by maprunty         #+#    #+#              #
-#    Updated: 2026/01/22 07:10:11 by maprunty        ###   ########.fr        #
+#    Updated: 2026/01/26 08:18:26 by maprunty        ###   ########.fr        #
 #                                                                             #
 # *************************************************************************** #
-"""Intro to the finally block."""
+"""Exercise 4: Raising Your Own Errors.
+
+A look at raise keyword and rasing custom Errors.
+"""
 
 
 class PlantError(ValueError):
-    """Docstring for PlantError."""
+    """Base Exception class type for all plant value errors."""
 
     def __init__(self, *args: str):
-        """TODO: to  tebe defined."""
+        """Initialise a generic garden error."""
         super().__init__(*args)
 
 
 class NoneNameError(PlantError):
-    """Docstring for WaterError."""
+    """Name error for all name based Garden errors."""
 
     def __init__(self):
-        """TODO: to  tebe defined."""
+        """Initialise a name type garden error."""
         super().__init__("Plant name cannot be empty!")
 
 
 class WaterError(PlantError):
-    """Docstring for WaterError."""
+    """Water error for all water based Garden errors."""
 
     def __init__(self, water_level):
-        """TODO: to  tebe defined."""
+        """Initialise a water type garden error."""
+        msg = f"Water level {water_level} is too "
         if water_level > 10:
-            super().__init__(f"Water level {water_level} is too high (max 10)")
+            msg += "high (max 10)"
         elif water_level < 1:
-            super().__init__(f"Water level {water_level} is too low (min 1)")
+            msg += "low (min 1)"
+        super().__init__(msg)
 
 
 class SunError(PlantError):
-    """Docstring for SunError."""
+    """Sun error for all Sun based Garden errors."""
 
     def __init__(self, sun_hours):
-        """TODO: to  tebe defined."""
+        """Initialise a sun type garden error."""
+        msg = f"Sunlight hours {sun_hours} is too "
         if sun_hours > 12:
-            super().__init__(f"Sunlight hours {sun_hours} is too high(max 12)")
+            msg += "high(max 12)"
         elif sun_hours < 2:
-            super().__init__(f"Sunlight hours {sun_hours} is too low (min 2)")
+            msg += "low (min 2)"
+        super().__init__(msg)
 
 
 def check_plant_health(plant_name, water_level, sunlight_hours) -> None:
@@ -65,7 +72,7 @@ def check_plant_health(plant_name, water_level, sunlight_hours) -> None:
             raise SunError(sunlight_hours)
         print("\nTesting good values...")
         print(f"Plant {plant_name} is healthy!")
-    except ValueError as e:
+    except PlantError as e:
         print(f"Error: {e} ")
 
 

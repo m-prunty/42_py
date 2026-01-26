@@ -7,10 +7,13 @@
 #    By: maprunty <maprunty@student.42.fr>         +#+  +:+       +#+         #
 #                                                +#+#+#+#+#+   +#+            #
 #    Created: 2026/01/22 02:01:26 by maprunty         #+#    #+#              #
-#    Updated: 2026/01/22 05:13:37 by maprunty        ###   ########.fr        #
+#    Updated: 2026/01/26 09:25:07 by maprunty        ###   ########.fr        #
 #                                                                             #
 # *************************************************************************** #
-"""A first look at exceptions."""
+"""Exercise 2: Making Your Own Error Types.
+
+A look at custom Error types
+"""
 
 
 class Plant:
@@ -21,13 +24,12 @@ class Plant:
         water_level (int): water_level in cm
     """
 
-    def __init__(self, name: str, water_level: int, age: int) -> None:
+    def __init__(self, name: str, water_level: int) -> None:
         """Initialise a Plant object.
 
         Args:
             name (str): Name of plant
             water_level (int): Initial water_level in cm
-            age (int): Initial age in days
         """
         self.name = name
         self.water_level = water_level
@@ -56,27 +58,27 @@ class Plant:
 
 
 class GardenError(Exception):
-    """Docstring for GardenError."""
+    """Base Exception class type for all Garden errors."""
 
-    def __init__(self, *args):
-        """TODO: to be defined."""
-        super().__init__(*args)
+    def __init__(self, args):
+        """Initialise a generic garden error."""
+        super().__init__(args)
 
 
 class PlantError(GardenError):
-    """Docstring for PlantError."""
+    """Plant error for all plant based Garden errors."""
 
     def __init__(self, plant_name: str):
-        """TODO: to  tebe defined."""
+        """Initialise a plant type garden error."""
         self.name = plant_name
         super().__init__(f"The {plant_name} is wilting!")
 
 
 class WaterError(GardenError):
-    """Docstring for WaterError."""
+    """Water error for all water based Garden errors."""
 
     def __init__(self):
-        """TODO: to  tebe defined."""
+        """Initialise a water type garden error."""
         super().__init__("Not enough water in the tank!")
 
 
