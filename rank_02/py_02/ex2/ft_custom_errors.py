@@ -7,7 +7,7 @@
 #    By: maprunty <maprunty@student.42.fr>         +#+  +:+       +#+         #
 #                                                +#+#+#+#+#+   +#+            #
 #    Created: 2026/01/22 02:01:26 by maprunty         #+#    #+#              #
-#    Updated: 2026/01/26 09:25:07 by maprunty        ###   ########.fr        #
+#    Updated: 2026/01/26 14:14:32 by maprunty        ###   ########.fr        #
 #                                                                             #
 # *************************************************************************** #
 """Exercise 2: Making Your Own Error Types.
@@ -85,7 +85,7 @@ class WaterError(GardenError):
 def test_error_types() -> None:
     """Tests basic values of check_temperature()."""
     print("=== Custom Garden Errors Demo ===")
-    a = Plant("Tomato plant", 2, 30)
+    a = Plant("Tomato plant", 2)
     try:
         print(a.water_level)
     except Exception as e:

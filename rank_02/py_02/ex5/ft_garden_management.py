@@ -7,16 +7,12 @@
 #    By: maprunty <maprunty@student.42.fr>         +#+  +:+       +#+         #
 #                                                +#+#+#+#+#+   +#+            #
 #    Created: 2026/01/22 02:01:29 by maprunty         #+#    #+#              #
-#    Updated: 2026/01/26 11:43:08 by maprunty        ###   ########.fr        #
+#    Updated: 2026/01/26 14:05:17 by maprunty        ###   ########.fr        #
 #                                                                             #
 # *************************************************************************** #
-"""
-• Has methods to add plants, water plants, and check plant health
-• Uses your custom error types from previous exercises
-• Handles different types of errors appropriately
-• Uses try/except/finally blocks where needed
-• Raises its own errors when something is wrong
-• Keeps working even when some operations fail
+"""Exercise 5: Garden Management System.
+
+Simple garden management system using the learned error handling techniques.
 """
 
 
@@ -66,14 +62,25 @@ class Plant:
 
 
 class GardenManager:
-    """Docstring for . """
+    """Garden Manager class for managing garden ops.
+
+    Attributes:
+        plants (list): list of plants
+        tank (int): garden water level in cm
+    """
 
     def __init__(self):
-        """TODO: to be defined. """
+        """Initialise a Plant object.
+
+        Args:
+            plants (list): list of plants
+            tank (int): garden water level in cm
+        """
         self.plants = []
         self.tank = 14
 
     def check_garden(self):
+        """Check self.tank water level."""
         try:
             if self.tank < 5:
                 raise GardenError("Not enough water in tank")
@@ -81,8 +88,9 @@ class GardenManager:
             print(f"Caught GardenError: {ge}")
 
     def add_plant(self, name: str, water_level: int, sun: int) -> None:
+        """Add a a Plant to self.plants."""
         try:
-            self.plants += [Plant(name, water_level, sun)] 
+            self.plants += [Plant(name, water_level, sun)]
         except NoneNameError as e:
             print(f"Error adding plant: {e}")
 
@@ -109,7 +117,7 @@ class GardenManager:
                 p.water_level += 5
                 self.tank -= 5
                 print("success")
-        except Exception as e:
+        except Exception:
             print(f"Error: Cannot water {p.name} - invalid plant!")
         finally:
             print("Closing watering system (cleanup)")
@@ -117,10 +125,11 @@ class GardenManager:
 
 class GardenError(ValueError):
     """Base Garden class type for all garden value errors."""
-    
+
     def __init__(self, *args: str):
         """Initialise a generic garden error."""
         super().__init__(*args)
+
 
 class PlantError(ValueError):
     """Base Exception class type for all plant value errors."""
@@ -158,24 +167,24 @@ class SunError(PlantError):
         """Initialise a sun type garden error."""
         msg = f"Sunlight hours {sun_hours} is too "
         if sun_hours > 12:
-            msg += "high(max 12)"
+            msg += "high (max 12)"
         elif sun_hours < 2:
             msg += "low (min 2)"
         super().__init__(msg)
 
 
-def main() -> None:
-    """Tests basic values of check_temperature()."""
+def test_garden_management() -> None:
+    """Test function to demo, plants,  watering, and health func."""
     print("=== Garden Management System ===")
     g = GardenManager()
     print("\nAdding plants to garden...")
     g.add_plant("tomato", 0, 8)
     g.add_plant("lettuce", 10, 8)
     g.add_plant("", 7, 8)
-    
+
     print("\nWatering plants...")
     g.water_plants()
-    
+
     print("\nChecking plant health...")
     g.check_plant_health()
 
@@ -185,5 +194,6 @@ def main() -> None:
 
     print("\nGarden management system test complete!")
 
+
 if __name__ == "__main__":
-    main()
+    test_garden_management()

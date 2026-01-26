@@ -7,7 +7,7 @@
 #    By: maprunty <maprunty@student.42.fr>         +#+  +:+       +#+         #
 #                                                +#+#+#+#+#+   +#+            #
 #    Created: 2026/01/22 00:44:03 by maprunty         #+#    #+#              #
-#    Updated: 2026/01/26 07:14:39 by maprunty        ###   ########.fr        #
+#    Updated: 2026/01/26 14:07:40 by maprunty        ###   ########.fr        #
 #                                                                             #
 # *************************************************************************** #
 """Exercise 0: Agricultural Data Validation Pipeline.
@@ -31,9 +31,9 @@ def check_temperature(temp_str: str) -> int | None:
     try:
         temp = int(temp_str)
         if min_val > temp:
-            raise ValueError(f"is too cold (min {min_val})°C")
+            raise ValueError(f"is too cold (min {min_val}°C)")
         elif max_val < temp:
-            raise ValueError(f"is too hot (max {max_val})°C")
+            raise ValueError(f"is too hot (max {max_val}°C)")
         print(f"Temperature {temp}°C is perfect for plants!")
         return temp
     except ValueError as ve:
