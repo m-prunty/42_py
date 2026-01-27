@@ -7,7 +7,7 @@
 #    By: potz <maprunty@student.42.fr>             +#+  +:+       +#+         #
 #                                                +#+#+#+#+#+   +#+            #
 #    Created: 2026/01/23 03:20:50 by potz             #+#    #+#              #
-#    Updated: 2026/01/23 04:47:25 by potz            ###   ########.fr        #
+#    Updated: 2026/01/27 20:31:06 by maprunty        ###   ########.fr        #
 #                                                                             #
 # *************************************************************************** #
 """First Foray into handling args and processing data.
@@ -25,44 +25,47 @@ Score range: 800
 
 
 """
+
 import sys
-
-class Player(object):
-
-    """Docstring for Player. """
-
-    def __init__(self, ):
-        """TODO: to be defined. """
 
 
 class Scorecard:
-    
-    def __init__(self, ac:int, scores: list[int]):
-        self.scores = get_args(ac, scores)
+    """TODO: Docstring.
+
+    Optional longer description.
+
+    Attributes:
+        attr (type): Description.
+    """
+
+    def __init__(self, ac: int, scores: list[int]) -> None:
+        """TODO: Docstring."""
+        self.scores = scores
         self.n = len(self.scores)
-   
-    def __repr__(self):
-        return self.scores
-   
-    def __str__(self):
+
+    def __repr__(self) -> str:
+        """TODO: Docstring."""
+        cls = self.__class__.__name__
+        return f"{cls}(scores={self.scores!r})"
+
+    def __str__(self) -> str:
+        """TODO: Docstring."""
         r_str = ""
         r_str += f"\nScores processed: {self.__repr__()}"
         r_str += f"\nTotal players: {len(self)}"
-        r_str += f"\nTotal score: {sum(self)}"
-        r_str += f"\nAverage score: {self.avg(self)}"
-        r_str += f"\nHigh score: {max(self)}"
-        r_str += f"\nLow score: {min(self)}"
-        r_str += f"\nScore range: {self.sc_range(self)}"
-        return r_str 
-    
-    def __iter__(self):
-        return iter(self.scores)
+        r_str += f"\nTotal score: {sum(self.scores)}"
+        r_str += f"\nAverage score: {self.avg(self.scores)}"
+        r_str += f"\nHigh score: {max(self.scores)}"
+        r_str += f"\nLow score: {min(self.scores)}"
+        r_str += f"\nScore range: {self.sc_range(self.scores)}"
+        return r_str
 
-    def __len__(self):
+    def __len__(self) -> int:
+        """TODO: Docstring."""
         return len(self.scores)
 
     @staticmethod
-    def avg(lst: list[int]):
+    def avg(lst: list[int]) -> float:
         """TODO: Docstring for avg.
 
         Args:
@@ -71,10 +74,10 @@ class Scorecard:
         Returns: TODO
 
         """
-        return sum(lst) / len(lst)
+        return float(sum(lst) / len(lst))
 
     @staticmethod
-    def sc_range(lst: list[int]):
+    def sc_range(lst: list[int]) -> int:
         """TODO: Docstring for range.
 
         Args:
@@ -86,20 +89,12 @@ class Scorecard:
         return max(lst) - min(lst)
 
 
-def get_name(path: str) -> str:
-    """Get the name of the file being run from path."""
-    i = len(path) - 1
-    while i >= 0 and path[i] != '/':
-        i -= 1
-    return path[i + 1:]
-
-
-def get_args(ac: int, av: list) -> list[int]:
+def get_args(ac: int, av: list[str]) -> list[int]:
     """TODO: Docstring for get_args.
 
     Args:
-        ac (int): TODO
-        av (list):
+        ac (int): argc
+        av (list): argv
     Returns: TODO
 
     """
@@ -114,19 +109,18 @@ def get_args(ac: int, av: list) -> list[int]:
     return r_lst
 
 
-def main():
+def main() -> None:
     """TODO: Docstring for main.
 
     Returns: TODO
 
     """
     ac = len(sys.argv)
-    name = get_name(sys.argv[0])
-    av = []
+    sc = None
     if ac <= 1:
         print("No arguments provided!")
     else:
-        sc = Scorecard(ac, sys.argv)
+        sc = Scorecard(ac, get_args(ac, sys.argv))
     print(f"Program name: {sc}")
     print(f"Total arguments: {ac}")
 

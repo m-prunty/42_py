@@ -7,7 +7,7 @@
 #    By: potz <maprunty@student.42.fr>             +#+  +:+       +#+         #
 #                                                +#+#+#+#+#+   +#+            #
 #    Created: 2026/01/23 02:21:53 by potz             #+#    #+#              #
-#    Updated: 2026/01/24 08:25:41 by maprunty        ###   ########.fr        #
+#    Updated: 2026/01/27 20:41:22 by maprunty        ###   ########.fr        #
 #                                                                             #
 # *************************************************************************** #
 """Build a 3D coordinate system using tuples.
@@ -32,11 +32,12 @@ Example:
     Player at x=3, y=4, z=0
     Coordinates: X=3, Y=4, Z=0
 """
+
 import sys
 from math import sqrt
 
 
-class Vec3():
+class Vec3:
     """Class for storing 3D Coords."""
 
     def __init__(self, x: int = 0, y: int = 0, z: int = 0):
@@ -52,52 +53,51 @@ class Vec3():
             print(e)
             # raise ValueError(e)
 
-    def __add__(self, other):
+    def __add__(self, other) -> "Vec3":
         """Add a vec3 instance with another."""
-        return Vec3(self.x + other.x,
-                    self.y + other.y,
-                    self.z + other.z,
-                    )
+        return Vec3(
+            self.x + other.x,
+            self.y + other.y,
+            self.z + other.z,
+        )
 
-    def __sub__(self, other):
+    def __sub__(self, other) -> "Vec3":
         """Sub a vec3 instance with another."""
-        return Vec3(self.x - other.x,
-                    self.y - other.y,
-                    self.z - other.z,
-                    )
+        return Vec3(
+            self.x - other.x,
+            self.y - other.y,
+            self.z - other.z,
+        )
 
-    def __abs__(self):
+    def __abs__(self) -> float:
         """Return magnitude of a vector."""
         return sqrt(self.x**2 + self.y**2 + self.z**2)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Return a tuple represantation of a Vec3 instance."""
-        return (self.x, self.y, self.z)
+        cls = self.__class__.__name__
+        return f"{cls}({self.x}, {self.y}, {self.z})"
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Return a str tuple represantation of a Vec3 instance."""
         return f"{self.__repr__()}"
 
-    def __iter__(self):
-        """Return a tuple iterable  represantation of a Vec3 instance."""
-        return iter(self.__repr__())
-
     @property
     def x(self) -> int:
-        """doc."""
+        """Doc."""
         return self._x
 
     @x.setter
-    def x(self, value: int):
+    def x(self, value: int) -> None:
         try:
             self._x = int(value)
         except ValueError as ve:
-            r_str = (f"Error parsing coordinates: {ve}")
+            r_str = f"Error parsing coordinates: {ve}"
             self._x = 0
-            raise ValueError(r_str)
+            raise ValueError(r_str) from None
 
     @staticmethod
-    def ft_split(string: str, char: str):
+    def ft_split(string: str, char: str) -> list[str]:
         """TODO: Docstring for ft_split.
 
         Returns: TODO
@@ -137,12 +137,12 @@ class Vec3():
             lst = cls.parse_args(len(lst), lst)
             return cls(lst[0], lst[1], lst[2])
         except Exception as e:
-            r_str = (f"Error details - Type: {e.__class__.__name__}")
-            r_str += (f", Args: (\"{e.args[0]}\",)")
+            r_str = f"Error details - Type: {e.__class__.__name__}"
+            r_str += f', Args: ("{e.args[0]}",)'
             raise ValueError(r_str)
 
     @classmethod
-    def assign_coord(cls, lst: list[int]):
+    def assign_coord(cls, lst: list[int]) -> None:
         """Docstring for assign_coord.
 
         Args:
@@ -179,13 +179,13 @@ class Vec3():
             try:
                 r_lst += [int(av[i])]
             except ValueError as ve:
-                r_str = (f"Error parsing coordinates: {ve}")
+                r_str = f"Error parsing coordinates: {ve}"
                 raise ValueError(r_str)
             i += 1
         return r_lst
 
 
-class Player(object):
+class Player:
     """Player class."""
 
     def __init__(self, start_pos: Vec3):
@@ -197,7 +197,10 @@ class Player(object):
         r_str = ""
         x, y, z = [3, 4, 0]
         r_str += "\nUnpacking Demonstation:"
-        def co_str(x, y, z): return f"x={x}, y={y}, x={z}\n"
+
+        def co_str(x, y, z):
+            return f"x={x}, y={y}, x={z}\n"
+
         r_str += f"\nPlayer at {co_str(x, y, z)}"
         x, y, z = self.pos
         r_str += f"Coordinates: {co_str(x, y, z).upper()}"
@@ -205,12 +208,12 @@ class Player(object):
 
     @property
     def pos(self) -> Vec3:
-        """pos."""
+        """Pos."""
         return self._pos
 
     @pos.setter
     def pos(self, value: Vec3):
-        """pos."""
+        """Pos."""
         self._pos = value
 
     def teleport(self, to: Vec3):
@@ -221,18 +224,18 @@ class Player(object):
 def first_start():
     """Primer function display output from e.g."""
     start_pos = Vec3(10, 20, 5)
-    r_str = (f"\nPosition crerated: {start_pos}")
+    r_str = f"\nPosition crerated: {start_pos}"
     origin = Vec3()
-    r_str += (f"\nDistance between {origin} and {start_pos}")
+    r_str += f"\nDistance between {origin} and {start_pos}"
     r_str += f":{abs(origin - start_pos): .2f}\n"
     str_coords = "3,4,0"
-    r_str += (f"\nParsing coordinates: \"{str_coords}\"")
+    r_str += f'\nParsing coordinates: "{str_coords}"'
     start_pos = new = Vec3.from_str(str_coords)
-    r_str += (f"\nParsed position: {new}")
-    r_str += (f"\nDistance between {origin} and {start_pos}")
+    r_str += f"\nParsed position: {new}"
+    r_str += f"\nDistance between {origin} and {start_pos}"
     r_str += f":{abs(origin - start_pos): .1f}\n"
     str_coords = "abc,def,asjkl"
-    r_str += (f"\nParsing invalid coordinates: {str_coords}")
+    r_str += f"\nParsing invalid coordinates: {str_coords}"
     try:
         new2 = Vec3.from_str(str_coords)
         _ = new2
@@ -241,7 +244,7 @@ def first_start():
     p = Player(origin)
     p.teleport(new)
     r_str += f"{p}"
-    return (r_str)
+    return r_str
 
 
 def main():
