@@ -7,10 +7,12 @@
 #    By: potz <maprunty@student.42.fr>             +#+  +:+       +#+         #
 #                                                +#+#+#+#+#+   +#+            #
 #    Created: 2026/01/23 03:20:50 by potz             #+#    #+#              #
-#    Updated: 2026/01/27 20:31:06 by maprunty        ###   ########.fr        #
+#    Updated: 2026/01/28 20:20:00 by maprunty        ###   ########.fr        #
 #                                                                             #
 # *************************************************************************** #
-"""First Foray into handling args and processing data.
+"""Exercise 1: Score Cruncher.
+
+First Foray into handling args and processing data.
 
 Authorized: import sys, sys.argv, len(), print()
 
@@ -22,7 +24,6 @@ Average score: 1930.0
 High score: 2300
 Low score: 1500
 Score range: 800
-
 
 """
 
@@ -45,13 +46,12 @@ class Scorecard:
 
     def __repr__(self) -> str:
         """TODO: Docstring."""
-        cls = self.__class__.__name__
-        return f"{cls}(scores={self.scores!r})"
+        return f"{self.scores!r}"
 
     def __str__(self) -> str:
         """TODO: Docstring."""
         r_str = ""
-        r_str += f"\nScores processed: {self.__repr__()}"
+        r_str += f"Scores processed: {self!r}"
         r_str += f"\nTotal players: {len(self)}"
         r_str += f"\nTotal score: {sum(self.scores)}"
         r_str += f"\nAverage score: {self.avg(self.scores)}"
@@ -89,24 +89,20 @@ class Scorecard:
         return max(lst) - min(lst)
 
 
-def get_args(ac: int, av: list[str]) -> list[int]:
-    """TODO: Docstring for get_args.
+def get_args_i() -> tuple[int, list[int]]:
+    """Retrieve program argc and argv(restricted to int) and return.
 
-    Args:
-        ac (int): argc
-        av (list): argv
-    Returns: TODO
-
+    NB: not including av[0] - program name str
+    Returns: argc as int and argv as list[int]
     """
-    i = 1
-    r_lst = []
-    while i < ac:
+    av = sys.argv
+    r_lst: list[int] = []
+    for a in av[1:]:
         try:
-            r_lst += [int(av[i])]
-        except ValueError:
-            print(f"Error: {av[i]} Not an int")
-        i += 1
-    return r_lst
+            r_lst.append(int(a.strip(",'][")))
+        except ValueError as ve:
+            print(f"oops, I typed ’{a}’ instead of ’1000’ -- {ve}")
+    return (len(r_lst), r_lst)
 
 
 def main() -> None:
@@ -115,14 +111,17 @@ def main() -> None:
     Returns: TODO
 
     """
-    ac = len(sys.argv)
+    ac, av = get_args_i()
     sc = None
+    print("=== Player Score Analytics ===")
     if ac <= 1:
-        print("No arguments provided!")
+        print(
+            "No scores provided. \
+Usage: python3 ft_score_analytics.py <score1> <score2> ... "
+        )
     else:
-        sc = Scorecard(ac, get_args(ac, sys.argv))
-    print(f"Program name: {sc}")
-    print(f"Total arguments: {ac}")
+        sc = Scorecard(ac, av)
+        print(sc)
 
 
 if __name__ == "__main__":

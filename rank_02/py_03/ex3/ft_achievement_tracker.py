@@ -7,7 +7,7 @@
 #    By: potz <maprunty@student.42.fr>             +#+  +:+       +#+         #
 #                                                +#+#+#+#+#+   +#+            #
 #    Created: 2026/01/23 02:23:24 by potz             #+#    #+#              #
-#    Updated: 2026/01/23 16:25:47 by potz            ###   ########.fr        #
+#    Updated: 2026/01/28 14:50:30 by maprunty        ###   ########.fr        #
 #                                                                             #
 # *************************************************************************** #
 """Build a 3D coordinate system using tuples.
@@ -36,7 +36,7 @@ Example: > python3 ft_achievement_tracker.py
 """
 
 
-class Player(object):
+class Player:
     """Player class."""
 
     def __init__(self, name: str, achievements: list[str]):
@@ -44,19 +44,19 @@ class Player(object):
         self.name = name
         self.achievements = set(achievements)
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Return a str represantation of a Player instance."""
         r_str = ""
         r_str += f"{self.name}: {self.achievements}"
         return r_str
 
     @property
-    def achievements(self) -> set:
-        """achievements set."""
+    def achievements(self) -> set[str]:
+        """Achievements set."""
         return self._achievements
 
     @achievements.setter
-    def achievements(self, value: set):
+    def achievements(self, value: set[str]) -> None:
         self._achievements = value
 
 
@@ -67,37 +67,44 @@ class ATracker:
         """TODO: to be defined."""
         self.player_lst = plyr_lst
 
-    def __repr__(self):
-        return f"{[f"{i}" for i in self.player_lst]}"
+    def __repr__(self) -> str:
+        """TODO: Return a tuple represantation of a Vec3 instance."""
+        cls = self.__class__.__name__
+        return f"{cls}({[i for i in self.player_lst]})"
 
     @property
-    def a_achievements(self) -> set:
-        """doc"""
+    def a_achievements(self) -> set[str]:
+        """TODO: Summary of the property.
+
+        Returns:
+            type: Description.
+        """
         self._a_achievements = set()
         for p in self.player_lst:
             self._a_achievements |= p.achievements
         return self._a_achievements
 
     @a_achievements.setter
-    def a_achievements(self, value: set):
+    def a_achievements(self, value: set[str]) -> None:
+        """TODO: Docstring."""
         self._a_achievements = value
 
     @property
     def player_lst(self) -> list[Player]:
-        """doc"""
+        """TODO: Docstring."""
         return self._player_lst
 
     @player_lst.setter
-    def player_lst(self, value: list[Player]):
+    def player_lst(self, value: list[Player]) -> None:
+        """TODO: Docstring."""
         self._player_lst = value
-    
-    
+
     @staticmethod
-    def common_toall(player_lst: list[Player]):
+    def common_toall(player_lst: list[Player]) -> set[str]:
         """TODO: Docstring for common_toall.
 
         Args:
-            player_list (list[Player]): TODO
+            player_lst (list[Player]): TODO: docstring.
 
         Returns: TODO
 
@@ -105,26 +112,26 @@ class ATracker:
         p_set = set(player_lst[0].achievements)
         for p in player_lst:
             p_set &= p.achievements
-        print(p_set)
+        return p_set
 
     @staticmethod
-    def diff_ofall(player_lst: list[Player]):
+    def diff_ofall(player_lst: list[Player]) -> set[str]:
         """TODO: Docstring for common_toall.
 
         Args:
-            player_list (list[Player]): TODO
+            player_lst (list[Player]): TODO
 
         Returns: TODO
 
         """
-        p_set = set()
+        p_set: set[str] = set()
         for p in player_lst:
             print(p_set)
             p_set -= p.achievements
-        print(p_set)
+        return p_set
 
     @classmethod
-    def from_dict(cls, plyr_dict: dict):
+    def from_dict(cls, plyr_dict: dict[str, list[str]]) -> "ATracker":
         """TODO: Docstring for from_dict.
 
         Args:
@@ -138,17 +145,20 @@ class ATracker:
             p_lst += [Player(p, plyr_dict[p])]
         return cls(p_lst)
 
-def main():
+
+def main() -> None:
     """Driver creates dict and Player list."""
     d = {
-        "alice": {
-            'first_kill', 'level_10', 'treasure_hunter', 'speed_demon'},
-        "bob": {
-            'first_kill', 'level_10', 'boss_slayer', 'collector'},
-        "charlie": {
-            'level_10', 'treasure_hunter', 'boss_slayer', 'speed_demon',
-            'perfectionist'},
-        }
+        "alice": ["first_kill", "level_10", "treasure_hunter", "speed_demon"],
+        "bob": ["first_kill", "level_10", "boss_slayer", "collector"],
+        "charlie": [
+            "level_10",
+            "treasure_hunter",
+            "boss_slayer",
+            "speed_demon",
+            "perfectionist",
+        ],
+    }
     a = ATracker.from_dict(d)
     print(a)
     print(a.a_achievements)

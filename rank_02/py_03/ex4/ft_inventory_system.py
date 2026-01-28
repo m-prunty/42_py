@@ -7,7 +7,7 @@
 #    By: maprunty <maprunty@student.42.fr>         +#+  +:+       +#+         #
 #                                                +#+#+#+#+#+   +#+            #
 #    Created: 2026/01/24 00:24:59 by maprunty         #+#    #+#              #
-#    Updated: 2026/01/24 10:44:35 by maprunty        ###   ########.fr        #
+#    Updated: 2026/01/28 19:49:27 by maprunty        ###   ########.fr        #
 #                                                                             #
 # *************************************************************************** #
 """Basic inventory tracking systems.
@@ -26,14 +26,14 @@ class Item:
         self.typ = typ
         self.value = value
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Return a str represantation of a Player instance."""
         r_str = ""
         r_str += f"{self.name}: {self.typ}, {self.value}"
         return r_str
-    
+
     @classmethod
-    def from_name(cls, name: str):
+    def from_name(cls, name: str) -> "Item":
         """TODO: Docstring for item_from_name.
 
         Args:
@@ -43,68 +43,74 @@ class Item:
 
         """
         if name == "sword":
-            return cls(name, 'weapon', 500)
+            return cls(name, "weapon", 500)
         elif name == "potion":
-            return cls(name, 'consumable', 50)
+            return cls(name, "consumable", 50)
         elif name == "shield":
-            return cls(name, 'armor', 200)
+            return cls(name, "armor", 200)
         elif name == "magic_ring":
-            return cls(name, 'armor', 250)
+            return cls(name, "armor", 250)
+        elif name == "helmet":
+            return cls(name, "armor", 225)
+        else:
+            return cls("", "", 0)
 
 
-class Player(object):
+class Player:
     """Player class."""
 
     def __init__(self, name: str):
         """Instantiate and instance of Player class."""
         self.name = name
-        self.inventory = dict()
+        self.inventory: dict[str, Item] = dict()
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Return a str represantation of a Player instance."""
         r_str = ""
         r_str += f"{self.name}: {self.inventory}"
         return r_str
 
     @property
-    def inventory(self) -> dict:
-        """inventory get."""
+    def inventory(self) -> dict[str, list[Item]]:
+        """Inventory get."""
         return self._inventory
 
     @inventory.setter
-    def inventory(self, value: dict):
+    def inventory(self, value: dict[str, list[Item]]) -> None:
         self._inventory = value
 
-    def add_item(self, itm: Item):
-        print(itm)
+    def add_item(self, itm: Item) -> None:
+        """TODO: Docstring."""
         try:
             self.inventory[itm.name].append(itm)
-        except Exception as E:
-            print(E)
+        except Exception as e:
+            print(e)
             self.inventory[itm.name] = [itm]
 
     def pop_item(self, name: str) -> Item:
-        itm = self.inventory.get(name).pop()
-        if not self.inventory.get(name):
+        """TODO: Docstring."""
+        items = self.inventory.get(name)
+        if not items:
             del self.inventory[name]
-        return itm
+        else:
+            r_item = items.pop()
+        return r_item
 
-    def inventory_from_dict(self, dct: dict):
+    def inventory_from_dict(self, dct: dict[str, int]) -> None:
         """TODO: Docstring for inventory_from.
 
         Args:
-            arg1 (TODO): TODO
+            dct (TODO): TODO
 
         """
         for d in dct:
             i = 0
             while i < dct[d]:
-                print(i, d)
                 self.add_item(Item.from_name(d))
                 i += 1
 
     @staticmethod
-    def transfer_item(plyr_a, plyr_b, name: str):
+    def transfer_item(plyr_a: "Player", plyr_b: "Player", name: str) -> None:
         """TODO: Docstring for transfer_item.
 
         Args:
@@ -118,7 +124,7 @@ class Player(object):
         itm = plyr_a.pop_item(name)
         plyr_b.add_item(itm)
 
-    
+
 class ATracker:
     """Docstring for ATracker."""
 
@@ -127,41 +133,73 @@ class ATracker:
         self.player_lst = plyr_lst
         a = self.player_lst[0]
         b = self.player_lst[1]
-        Player.transfer_item(a, b, "potion")
-        Player.transfer_item(a, b, "potion")
+        print(a, b)
+        # Player.transfer_item(a, b, "potion")
+        # Player.transfer_item(a, b, "potion")
 
-        print(a.pop_item("potion"))
+    def __repr__(self) -> str:
+        """TODO: Docstring."""
+        return f"a {[i for i in self.player_lst]}"
 
-    def __repr__(self):
-        return f"{[i.__str__() for i in self.player_lst]}"
+    def __str__(self) -> str:
+        """Return a str represantation of a Player instance.
+
+        === Inventory System Analysis ===
+        Total items in inventory: 12
+        Unique item types: 5
+        === Current Inventory ===
+        potion: 5 units (41.7%)
+        armor: 3 units (25.0%)
+        shield: 2 units (16.7%)
+        sword: 1 unit (8.3%)
+        helmet: 1 unit (8.3%)
+        === Inventory Statistics ===
+        Most abundant: potion (5 units)
+        Least abundant: sword (1 unit)
+        === Item Categories ===
+        Moderate: {'potion': 5}
+        Scarce: {'sword': 1, 'shield': 2, 'armor': 3, 'helmet': 1}
+        === Management Suggestions ===
+        Restock needed: ['sword', 'helmet']
+        === Dictionary Properties Demo ===
+        Dictionary keys: ['sword', 'potion', 'shield', 'armor', 'helmet']
+        Dictionary values: [1, 5, 2, 3, 1]
+        Sample lookup - 'sword' in inventory: True
+        """
+        r_str = "a"
+        r_str = str(self.all_items)
+        # r_str += f"{self.name}: {self.achievements}"
+        return r_str
 
     @property
-    def a_items(self) -> set:
-        """doc"""
-        self._a_items = set()
+    def all_items(self) -> dict[str, int]:
+        """TODO: Docstring."""
+        self._all_items: dict[str, int] = dict()
         for p in self.player_lst:
-            self._a_items |= p.inventory
-        return self._a_items
+            for i in p.inventory:
+                self._all_items[i] = self._all_items.get(i, 0) + 1
+                print(self._all_items)
+        return self._all_items
 
-    @a_items.setter
-    def a_items(self, value: set):
-        self._a_items = value
+    @all_items.setter
+    def all_items(self, value: dict[str, int]) -> None:
+        self._all_items = value
 
     @property
     def player_lst(self) -> list[Player]:
-        """doc"""
+        """TODO: Docstring."""
         return self._player_lst
 
     @player_lst.setter
-    def player_lst(self, value: list[Player]):
+    def player_lst(self, value: list[Player]) -> None:
         self._player_lst = value
-    
+
     @staticmethod
-    def common_toall(player_lst: list[Player]):
+    def common_toall(player_lst: list[Player]) -> set[str]:
         """TODO: Docstring for common_toall.
 
         Args:
-            player_list (list[Player]): TODO
+            player_lst (list[Player]): TODO
 
         Returns: TODO
 
@@ -172,41 +210,38 @@ class ATracker:
         return p_set
 
     @staticmethod
-    def unique_ofall(player_lst: list[Player]):
+    def unique_ofall(player_lst: list[Player]) -> set[str]:
         """TODO: Docstring for unique_ofall.
 
         Args:
-            playe_lst (list[Player): TODO
+            player_lst (list[Player): TODO
 
         Returns: TODO
-
         """
         p_set = ATracker.common_toall(player_lst)
         items = set()
         for p in player_lst:
             items |= set(p.inventory)
-        print(p, items)
         p_set ^= items
         return p_set
 
     @staticmethod
-    def diff_ofall(player_lst: list[Player]):
+    def diff_ofall(player_lst: list[Player]) -> set[str]:
         """TODO: Docstring for common_toall.
 
         Args:
-            player_list (list[Player]): TODO
+            player_lst (list[Player]): TODO
 
         Returns: TODO
 
         """
-        p_set = set()
+        p_set: set[str] = set()
         for p in player_lst:
-            print(p_set)
             p_set -= set(p.inventory)
-        print(p_set)
+        return p_set
 
     @classmethod
-    def from_dict(cls, plyr_dict: dict):
+    def from_dict(cls, plyr_dict: dict[str, dict[str, int]]) -> "ATracker":
         """TODO: Docstring for from_dict.
 
         Args:
@@ -216,30 +251,31 @@ class ATracker:
 
         """
         p_lst = []
-    
         for p in plyr_dict:
             p_cls = Player(p)
             p_cls.inventory_from_dict(plyr_dict[p])
             p_lst += [p_cls]
         return cls(p_lst)
 
-def main():
+
+def main() -> None:
     """Driver creates dict and Player list."""
     d = {
         "alice": {
-            'sword': 1,
-            'potion': 5,
-            'shield': 1,
-            },
+            "sword": 1,
+            "potion": 5,
+            "shield": 1,
+        },
         "bob": {
-            'magic_ring': 1, 
-            'shield': 1,
-            }
-        }
+            "magic_ring": 1,
+            "shield": 1,
+        },
+    }
     a = ATracker.from_dict(d)
     print(a)
-    print(a.common_toall(a.player_lst))
-    print(a.unique_ofall(a.player_lst))
+    # print(a.common_toall(a.player_lst))
+    # print(a.unique_ofall(a.player_lst))
+
 
 if __name__ == "__main__":
     main()
