@@ -7,14 +7,14 @@
 #    By: potz <maprunty@student.42.fr>             +#+  +:+       +#+         #
 #                                                +#+#+#+#+#+   +#+            #
 #    Created: 2026/01/23 03:20:50 by potz             #+#    #+#              #
-#    Updated: 2026/01/28 20:20:00 by maprunty        ###   ########.fr        #
+#    Updated: 2026/01/29 17:08:13 by maprunty        ###   ########.fr        #
 #                                                                             #
 # *************************************************************************** #
 """Exercise 1: Score Cruncher.
 
 First Foray into handling args and processing data.
 
-Authorized: import sys, sys.argv, len(), print()
+Authorized: sys.argv, len(), sum(), max(), min(), int(), print()
 
 === Player Score Analytics ===
 Scores processed: [1500, 2300, 1800, 2100, 1950]

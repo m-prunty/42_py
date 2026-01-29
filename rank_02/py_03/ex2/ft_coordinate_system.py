@@ -7,7 +7,7 @@
 #    By: potz <maprunty@student.42.fr>             +#+  +:+       +#+         #
 #                                                +#+#+#+#+#+   +#+            #
 #    Created: 2026/01/23 02:21:53 by potz             #+#    #+#              #
-#    Updated: 2026/01/28 21:23:13 by maprunty        ###   ########.fr        #
+#    Updated: 2026/01/29 21:27:21 by maprunty        ###   ########.fr        #
 #                                                                             #
 # *************************************************************************** #
 """Build a 3D coordinate system using tuples.
@@ -54,15 +54,12 @@ class Vec3:
             y (int): y coordinate; defaults to 0 if none given.
             z (int): z coordinate; defaults to 0 if none given.
         """
-        self.x = 0
-        self.y = 0
-        self.z = 0
         try:
             self.x = x
             self.y = y
             self.z = z
         except CoordError as ce:
-            raise CoordError(f"{ce}") from CoordError
+            raise CoordError(ce) from ce
 
     def __add__(self, other: "Vec3") -> "Vec3":
         """Add a vec3 instance with another."""
@@ -102,8 +99,8 @@ class Vec3:
     def x(self, value: int) -> None:
         try:
             self._x = int(value)
-        except CoordError as ce:
-            raise CoordError(f"{ce}") from CoordError
+        except (ValueError, TypeError) as ce:
+            raise CoordError(ce) from ce
 
     @staticmethod
     def ft_split(string: str, char: str) -> list[str]:
@@ -135,7 +132,7 @@ class Vec3:
         """TODO: Docstring for get_args.
 
         Args:
-             av (list): TODO: description for av
+             av (list): TODO: descriptin for av
 
         Returns: TODO
         """
@@ -143,8 +140,8 @@ class Vec3:
         for arg in av:
             try:
                 r_lst += [int(arg)]
-            except CoordError as ce:
-                raise CoordError(f"{ce}") from CoordError
+            except (ValueError, TypeError) as ce:
+                raise CoordError(ce.args[0]) from ce
         return r_lst
 
     @classmethod
@@ -161,11 +158,7 @@ class Vec3:
             lst = cls.parse_args([ele for ele in cls.ft_split(coord, ",")])
             return cls(lst[0], lst[1], lst[2])
         except CoordError as ce:
-            # r_str = f"Error parsing coordinates: {e}"
-            # r_str = f"Error details - Type: {e.__class__.__name__}"
-            # r_str += f', Args: ("{e.args[0]}",)'
-            print("gdj")
-            raise CoordError(f"{ce}") from None
+            raise CoordError(ce.args[0]) from ce
 
 
 class Player:
@@ -211,26 +204,32 @@ def first_start() -> str:
     origin = Vec3()
     r_str += f"\nDistance between {origin} and {start_pos}"
     r_str += f":{abs(origin - start_pos): .2f}\n"
-    str_coords = "3,4,0"
+    str_coords = "3,4,-0"
     r_str += f'\nParsing coordinates: "{str_coords}"'
     start_pos = new = Vec3.from_str(str_coords)
     r_str += f"\nParsed position: {new}"
     r_str += f"\nDistance between {origin} and {start_pos}"
     r_str += f":{abs(origin - start_pos): .1f}\n"
+    print(r_str)
+
     str_coords = "abc,def,ghi"
-    r_str += f"\nParsing invalid coordinates: {str_coords}\n"
+    print(f"Parsing invalid coordinates: {str_coords}")
     try:
         new2 = Vec3.from_str(str_coords)
         _ = new2
     except CoordError as ce:
-        r_str += f"Error parsing coordinates: {ce}\n"
-        r_str += ce.__str__()
-        print(r_str)
+        orig = ce.__cause__
+        print(f"Error parsing coordinates: {orig.args[0][0]}")
+        print(
+            f"Error details - Type: {orig.__class__.__name__}, "
+            f"Args: {orig.args[0]}"
+        )
+
     finally:
         p = Player(origin)
         p.teleport(new)
-        r_str += f"\n{p}"
-    return r_str
+        print(p)
+    return
 
 
 def get_args_i() -> tuple[int, list[int]]:
@@ -244,7 +243,7 @@ def get_args_i() -> tuple[int, list[int]]:
     for a in av[1:]:
         try:
             r_lst.append(int(a.strip(",'][")))
-        except ValueError as ve:
+        except CoordError as ve:
             print(f"oops, I typed ’{a}’ instead of ’1000’ -- {ve}")
     return (len(r_lst), r_lst)
 
@@ -254,8 +253,7 @@ class CoordError(ValueError):
 
     def __init__(self, *args: str):
         """Initialise a coord error."""
-        super().__init__(f"Error parsing coordinates: {args}")
-        print("ia")
+        super().__init__(args)
 
 
 def main() -> None:
@@ -265,8 +263,9 @@ def main() -> None:
 
     """
     ac, av = get_args_i()
+    print("=== Game Coordinate System ===")
     if ac <= 1:
-        print(first_start())
+        first_start()
     else:
         print(f"Total arguments: {ac}")
         for a in av:
