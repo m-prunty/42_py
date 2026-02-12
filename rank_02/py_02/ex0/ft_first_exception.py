@@ -7,7 +7,7 @@
 #    By: maprunty <maprunty@student.42.fr>         +#+  +:+       +#+         #
 #                                                +#+#+#+#+#+   +#+            #
 #    Created: 2026/01/22 00:44:03 by maprunty         #+#    #+#              #
-#    Updated: 2026/01/26 14:07:40 by maprunty        ###   ########.fr        #
+#    Updated: 2026/01/27 17:52:17 by maprunty        ###   ########.fr        #
 #                                                                             #
 # *************************************************************************** #
 """Exercise 0: Agricultural Data Validation Pipeline.
@@ -41,6 +41,7 @@ def check_temperature(temp_str: str) -> int | None:
             print(f"Error: {temp}°C {ve}")
         else:
             print(f"Error: '{temp_str}' is not a valid number")
+    return None
 
 
 def test_temperature_input() -> None:

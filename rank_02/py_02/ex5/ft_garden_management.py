@@ -113,7 +113,7 @@ class GardenManager:
         print("Opening watering system")
         try:
             for p in self.plants:
-                print(f"Watering {p.name}", end=' - ')
+                print(f"Watering {p.name}", end=" - ")
                 p.water_level += 5
                 self.tank -= 5
                 print("success")

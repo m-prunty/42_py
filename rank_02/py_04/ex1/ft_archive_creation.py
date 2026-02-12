@@ -7,7 +7,7 @@
 #    By: maprunty <maprunty@student.42heilbronn.d  +#+  +:+       +#+         #
 #                                                +#+#+#+#+#+   +#+            #
 #    Created: 2026/01/25 17:01:17 by maprunty         #+#    #+#              #
-#    Updated: 2026/01/25 17:26:25 by maprunty        ###   ########.fr        #
+#    Updated: 2026/01/25 20:28:47 by maprunty        ###   ########.fr        #
 #                                                                             #
 # *************************************************************************** #
 """Exercise 1: Archive Creation."""

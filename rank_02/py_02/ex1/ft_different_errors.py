@@ -7,7 +7,7 @@
 #    By: maprunty <maprunty@student.42.fr>         +#+  +:+       +#+         #
 #                                                +#+#+#+#+#+   +#+            #
 #    Created: 2026/01/22 02:01:23 by maprunty         #+#    #+#              #
-#    Updated: 2026/01/26 07:26:42 by maprunty        ###   ########.fr        #
+#    Updated: 2026/01/27 17:52:50 by maprunty        ###   ########.fr        #
 #                                                                             #
 # *************************************************************************** #
 """Exercise 1: Different Types of Problems first look at exceptions.
@@ -32,10 +32,10 @@ def garden_operations(i: int):
         if i == "missing\\_plant":
             d[i]
         x = int(i)
-        _ = 10/x
+        _ = 10 / x
         if x == 4:
             try:
-                x/0 and d[x]
+                x / 0 and d[x]
             except (KeyError, ZeroDivisionError):
                 print("Caught an error, but program continues!")
     except ValueError:
@@ -51,11 +51,12 @@ def garden_operations(i: int):
 def test_error_types() -> None:
     """Tests basic values of check_temperature()."""
     test_vals = {
-            "ValueError": "abc",
-            "ZeroDivisionError": "0",
-            "FileNotFoundError": "missing.txt",
-            "KeyError": "missing\\_plant",
-            "muliple errors together": "4"}
+        "ValueError": "abc",
+        "ZeroDivisionError": "0",
+        "FileNotFoundError": "missing.txt",
+        "KeyError": "missing\\_plant",
+        "muliple errors together": "4",
+    }
     print("=== Garden Error Types Demo ===")
     for k, v in test_vals.items():
         print(f"\nTesting {k}...")

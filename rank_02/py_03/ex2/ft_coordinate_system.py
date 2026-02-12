@@ -7,7 +7,7 @@
 #    By: potz <maprunty@student.42.fr>             +#+  +:+       +#+         #
 #                                                +#+#+#+#+#+   +#+            #
 #    Created: 2026/01/23 02:21:53 by potz             #+#    #+#              #
-#    Updated: 2026/01/29 21:27:21 by maprunty        ###   ########.fr        #
+#    Updated: 2026/01/30 21:15:40 by maprunty        ###   ########.fr        #
 #                                                                             #
 # *************************************************************************** #
 """Build a 3D coordinate system using tuples.
@@ -92,13 +92,37 @@ class Vec3:
 
     @property
     def x(self) -> int:
-        """Doc."""
+        """X coordinate value."""
         return self._x
 
     @x.setter
     def x(self, value: int) -> None:
         try:
             self._x = int(value)
+        except (ValueError, TypeError) as ce:
+            raise CoordError(ce) from ce
+
+    @property
+    def y(self) -> int:
+        """Y coordinate value."""
+        return self._y
+
+    @y.setter
+    def y(self, value: int) -> None:
+        try:
+            self._y = int(value)
+        except (ValueError, TypeError) as ce:
+            raise CoordError(ce) from ce
+
+    @property
+    def z(self) -> int:
+        """Z coordinate value."""
+        return self._z
+
+    @z.setter
+    def z(self, value: int) -> None:
+        try:
+            self._z = int(value)
         except (ValueError, TypeError) as ce:
             raise CoordError(ce) from ce
 
@@ -242,7 +266,7 @@ def get_args_i() -> tuple[int, list[int]]:
     r_lst: list[int] = []
     for a in av[1:]:
         try:
-            r_lst.append(int(a.strip(",'][")))
+            r_lst.append(int(a.strip(",'][()")))
         except CoordError as ve:
             print(f"oops, I typed ’{a}’ instead of ’1000’ -- {ve}")
     return (len(r_lst), r_lst)
@@ -268,8 +292,12 @@ def main() -> None:
         first_start()
     else:
         print(f"Total arguments: {ac}")
-        for a in av:
-            print(a)
+        i = 0
+        coord_list = []
+        while i < ac:
+            coord_list += [Vec3(av[i], av[i + 1], av[i + 2])]
+            i += 3
+        print(coord_list)
 
 
 if __name__ == "__main__":
