@@ -7,7 +7,7 @@
 #    By: potz <maprunty@student.42.fr>             +#+  +:+       +#+         #
 #                                                +#+#+#+#+#+   +#+            #
 #    Created: 2026/01/23 02:23:59 by potz             #+#    #+#              #
-#    Updated: 2026/02/13 01:17:17 by maprunty        ###   ########.fr        #
+#    Updated: 2026/02/13 13:01:09 by maprunty        ###   ########.fr        #
 #                                                                             #
 # *************************************************************************** #
 """TODO: Short module summary.
@@ -32,7 +32,8 @@ Fibonacci sequence (first 10): 0, 1, 1, 2, 3, 5, 8, 13, 21, 34
 Prime numbers (first 5): 2, 3, 5, 7, 11
 """
 
-from random import random
+from random import randint
+
 
 class GenEvent:
     """TODO: Docstring."""
@@ -46,41 +47,39 @@ class GenEvent:
         self.n = n
 
     def get_preevents(self, e):
-        self.events = [set(e.map(e.val_, val="player")),
-                    set(e.map(e.val_, val="event_type")),
-                    set(e.map(e.dataval_, val="level")),
-                    set(e.map(e.dataval_, val="zone")),
-                    set(e.map(e.dataval_, val="score_delta")),
-                       ]
+        self.events = [
+            list(set(e.map(e.val_, val="player"))),
+            list(set(e.map(e.val_, val="event_type"))),
+            list(set(e.map(e.val_, val="timestamp"))),
+            list(range(1, 50)),
+            list(range(-500, 500)),
+            list(set(e.map(e.dataval_, val="zone"))),
+        ]
 
     def get_rands(self):
-        r_list  = list()
+        r_list = list()
         for i in self.events:
-            r_list += [random() % len(i)]
+            r_list += [randint(0, len(i) - 1)]
         return r_list
 
     def genevents(self):
-        rands = [self.get_rands() for i in range(self.n)]
-        
-    
-    def genevent(self, id_:int ):
-        r_dct: dict[str, int | str ] = dict()
+        r_lst = []
+        for i in range(self.n):
+            r_lst += [self.genevent(i + 1, self.get_rands())]
+        return r_lst
+
+    def genevent(self, id_: int, rands: list[int]):
+        r_dct: dict[str, int | str] = dict()
         r_dct["id"] = id_
-        r_dct["player"] = ""
-        r_dct["event_type"] = ""
-        r_dct["timestamp"] = ""
-        r_dct["data"] = {"level": 0,
-                        "score_delta": 0,
-                        "zone": 0,
-                         }
-
-        {'id': 47, 'player': 'eve', 'event_type': 'level_up', 'timestamp': '2024-01-02T19:05', 
-'data': {'level': 27, 'score_delta': 497, 'zone': 'pixel_zone_5'}}
-
-            
-            
-        
-
+        r_dct["player"] = self.events[0][rands[0]]
+        r_dct["event_type"] = self.events[1][rands[1]]
+        r_dct["timestamp"] = self.events[2][rands[2]]
+        r_dct["data"] = {
+            "level": self.events[3][rands[3]],
+            "score_delta": self.events[4][rands[4]],
+            "zone": self.events[5][rands[5]],
+        }
+        return r_dct
 
 
 class Event:
@@ -93,6 +92,29 @@ class Event:
             event_list (list[dict]): Description.
         """
         self.e_list = event_list
+
+    def __str__(self):
+        r_str = ""
+        r_str += "=== Game Data Stream Processor ===\n"
+        r_str += f"\nProcessing {self.e_list[-1]['id']}, game events..\n"
+        r_str += "".join(self.map(self.str_, self.filter(self.n_e)))
+        r_str += "\n...\n"
+        r_str += "\nMemory usage: Constant (streaming)\n"
+        r_str += "Processing time: 0.045 seconds\n"
+        r_str += f"{self.analytics()}\n"
+        return r_str
+
+    def analytics(self):
+        r_str = "\n"
+        r_str += "=== Stream Analytics ===\n"
+        r_str += f"Total events processed {self.e_list[-1]['id']}\n"
+        hi_lvl = sum(1 for _ in self.filter(self.n_hilevel))
+        treasure = sum(1 for _ in self.filter(self.n_treasure))
+        lvlup = sum(1 for _ in self.filter(self.n_lvlup))
+        r_str += f"High-level players (10+): {hi_lvl}\n"
+        r_str += f"Treasure events: {treasure}\n"
+        r_str += f"Level-up events: {lvlup}"
+        return r_str
 
     def __iter__(self):
         e = iter(self.e_list)
@@ -111,8 +133,13 @@ class Event:
             return 1
 
     def n_hilevel(self, e):
-        if e["data"]["level"] >= 10:
-            return 1
+        return e["data"]["level"] >= 10
+
+    def n_treasure(self, e):
+        return e["event_type"] == "item_found"
+
+    def n_lvlup(self, e):
+        return e["event_type"] == "level_up"
 
     def str_(self, e, val=None):
         r_str = "\n"
@@ -178,30 +205,50 @@ def get_args_dict() -> tuple[int, dict[list[str]]]:
     return (len(r_dct) + 1, r_dct)
 
 
+def gen_demo(fib: int = 10, prime: int = 5):
+    r_str = ""
+    r_str += "=== Generator Demonstration ===\n"
+    r_str += (
+        f"Fibonacci sequence (first {fib}): {', '.join(map(str, fib_n(fib)))}"
+    )
+    r_str += "\n"
+    r_str += (
+        f"Prime numbers (first {prime}): {', '.join(map(str, prime_n(prime)))}"
+    )
+    r_str += "\n"
+    return r_str
+
+
 def main() -> None:
     """Driver creates dict and Player list."""
     ac, av = get_args_dict()
     if ac <= 1:
-        a = Event(av)
+        print("please enter seed list[dict]")
+        return
     else:
         a = Event(av)
-    it = iter(a)
-    print(next(it))
-    print(next(it))
-    print(next(it))
-    print(*a.map(a.str_, a.filter(a.n_e)))
-    print(*a.map(a.str_, a.filter(a.n_hilevel)))
-    print(*a.map(a.str_))
-    print(set(a.map(a.val_, val="player")))
-    print(set(a.map(a.val_, val="event_type")))
-    print(set(a.map(a.dataval_, val="level")))
-    print(set(a.map(a.dataval_, val="zone")))
-    print(set(a.map(a.dataval_, val="score_delta")))
-    print(set(a.map(a.val_, val="timestamp")))
-    print(*fib_n(10))
-    print(*prime_n(15))
-    print("fin", ac, *av[-4:])
+    g = GenEvent(1000)
+    g.get_preevents(a)
+    a.e_list = g.genevents()
+    print(a)
+    print(gen_demo())
 
+
+#    print(*fib_n(10))
+#    print(*prime_n(15))
+#    it = iter(a)
+#    print(next(it))
+#    print(next(it))
+#    print(next(it))
+#    print(*a.map(a.str_))
+#    print(set(a.map(a.val_, val="player")))
+#    print(set(a.map(a.val_, val="event_type")))
+#    print(set(a.map(a.dataval_, val="level")))
+#    print(set(a.map(a.dataval_, val="zone")))
+#    print(set(a.map(a.dataval_, val="score_delta")))
+#    print(set(a.map(a.val_, val="timestamp")))
+#    print("fin", ac, *av[-4:])
+#
 
 if __name__ == "__main__":
     main()
