@@ -7,7 +7,7 @@
 #    By: potz <maprunty@student.42.fr>             +#+  +:+       +#+         #
 #                                                +#+#+#+#+#+   +#+            #
 #    Created: 2026/01/23 02:23:59 by potz             #+#    #+#              #
-#    Updated: 2026/02/12 13:26:04 by maprunty        ###   ########.fr        #
+#    Updated: 2026/02/13 01:17:17 by maprunty        ###   ########.fr        #
 #                                                                             #
 # *************************************************************************** #
 """TODO: Short module summary.
@@ -32,7 +32,7 @@ Fibonacci sequence (first 10): 0, 1, 1, 2, 3, 5, 8, 13, 21, 34
 Prime numbers (first 5): 2, 3, 5, 7, 11
 """
 
-from random import randint
+from random import random
 
 class GenEvent:
     """TODO: Docstring."""
@@ -46,21 +46,39 @@ class GenEvent:
         self.n = n
 
     def get_preevents(self, e):
-        self.player = set(e.map(e.val_, val="player"))
-        self.event_type = set(e.map(e.val_, val="event_type"))
-        self.level = set(e.map(e.dataval_, val="level"))
-        self.zone = set(e.map(e.dataval_, val="zone"))
-        self.score_delta = set(e.map(e.dataval_, val="score_delta"))
+        self.events = [set(e.map(e.val_, val="player")),
+                    set(e.map(e.val_, val="event_type")),
+                    set(e.map(e.dataval_, val="level")),
+                    set(e.map(e.dataval_, val="zone")),
+                    set(e.map(e.dataval_, val="score_delta")),
+                       ]
 
     def get_rands(self):
         r_list  = list()
-        for i range(5):
-            r_list += [random.randint()]
+        for i in self.events:
+            r_list += [random() % len(i)]
         return r_list
 
     def genevents(self):
-        for i 
-        rands = get_rands()
+        rands = [self.get_rands() for i in range(self.n)]
+        
+    
+    def genevent(self, id_:int ):
+        r_dct: dict[str, int | str ] = dict()
+        r_dct["id"] = id_
+        r_dct["player"] = ""
+        r_dct["event_type"] = ""
+        r_dct["timestamp"] = ""
+        r_dct["data"] = {"level": 0,
+                        "score_delta": 0,
+                        "zone": 0,
+                         }
+
+        {'id': 47, 'player': 'eve', 'event_type': 'level_up', 'timestamp': '2024-01-02T19:05', 
+'data': {'level': 27, 'score_delta': 497, 'zone': 'pixel_zone_5'}}
+
+            
+            
         
 
 
@@ -164,7 +182,7 @@ def main() -> None:
     """Driver creates dict and Player list."""
     ac, av = get_args_dict()
     if ac <= 1:
-        a = Event(start())
+        a = Event(av)
     else:
         a = Event(av)
     it = iter(a)
