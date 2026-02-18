@@ -7,7 +7,7 @@
 #    By: potz <maprunty@student.42.fr>             +#+  +:+       +#+         #
 #                                                +#+#+#+#+#+   +#+            #
 #    Created: 2026/01/23 02:24:15 by potz             #+#    #+#              #
-#    Updated: 2026/02/13 12:42:09 by maprunty        ###   ########.fr        #
+#    Updated: 2026/02/18 02:24:12 by maprunty        ###   ########.fr        #
 #                                                                             #
 # *************************************************************************** #
 """TODO: Short module summary.
@@ -82,7 +82,17 @@ class ATracker:
     def __repr__(self) -> str:
         """TODO: Return a tuple represantation of a Vec3 instance."""
         cls = self.__class__.__name__
-        return f"{cls}({[i for i in self.player_lst]}) {self.eg_list()} {self.eg_dict()}"
+        return f"{cls}({[i for i in self.player_lst]})"
+
+    def __str__(self) -> str:
+        """TODO: Return a tuple represantation of a Vec3 instance."""
+        r_str = ""
+        r_str += "=== Game Analytics Dashboard ===\n\n"
+        r_str += self.eg_list() + "\n"
+        r_str += self.eg_dict() + "\n"
+        r_str += self.eg_set() + "\n"
+        r_str += self.eg_analysis() + "\n"
+        return r_str
 
     def eg_list(self):
         hi_sc = [i.name for i in self.player_lst if i.total_score > 2000]
@@ -90,24 +100,49 @@ class ATracker:
         act_p = [i["player"] for i in self.filter(self.active, self.s_list)]
         r_str = ""
         r_str += "=== List Comprehension Examples ===\n"
-        r_str += f"{hi_sc}\n"
-        r_str += f"{sc_x2}\n"
-        r_str += f"{act_p}\n"
+        r_str += f"High Scorers: {hi_sc}\n"
+        r_str += f"Scores Doubled: {sc_x2}\n"
+        r_str += f"Active Players: {act_p}\n"
         return r_str
 
     def eg_dict(self):
-        lvls = {"low": 2000, "medium": 4000, "high": 6000}
         p_sc = {p.name: p.total_score for p in self.player_lst}
         sc_cat = {
-            k: sum(1 for self.filter(self.active, self.player_lst) if i.total_score <= lvls[k])
-            for k in lvls
+            k: sum(
+                1 for v in self.player_lst if self.levels(v.total_score) == k
+            )
+            for k in ("high", "medium", "low")
         }
-        ach_c = [i["player"] for i in self.filter(self.active, self.s_list)]
+        ach_c = {i.name: len(i.achievements) for i in self.player_lst}
         r_str = ""
         r_str += "=== Dict Comprehension Examples ===\n"
-        r_str += f"{p_sc}\n"
-        r_str += f"{sc_cat}\n"
-        r_str += f"{ach_c}\n"
+        r_str += f"Player scores: {p_sc}\n"
+        r_str += f"Score categories: {sc_cat}\n"
+        r_str += f"Achievement counts: {ach_c}\n"
+        return r_str
+
+    def eg_set(self):
+        p_unq = {p.name for p in self.player_lst}
+        ach_unq = {j for i in self.player_lst for j in i.achievements}
+        act_reg = {i.active for i in self.player_lst}
+        r_str = ""
+        r_str += "=== Set Comprehension Examples ===\n"
+        r_str += f"Unique players: {p_unq}\n"
+        r_str += f"Unique achievements: {ach_unq}\n"
+        r_str += f"Active regions: {act_reg}\n"
+        return r_str
+
+    def eg_analysis(self):
+        p_unq = len({p.name for p in self.player_lst})
+        ach_unq = len({j for i in self.player_lst for j in i.achievements})
+        p_sc = [p.total_score for p in self.player_lst]
+        p_top = [p for p in self.player_lst if p.total_score == max(p_sc)][0]
+        r_str = ""
+        r_str += "=== Combined Analysis ===\n"
+        r_str += f"Total players: {p_unq}\n"
+        r_str += f"Total unique achievements: {ach_unq}\n"
+        r_str += f"Average score: {sum(p_sc) / len(p_sc):.2f}\n"
+        r_str += f"Top performer: {p_top.name} ({p_top.total_score} points, {len(p_top.achievements)} achievements)\n"
         return r_str
 
     @classmethod
@@ -127,7 +162,9 @@ class ATracker:
             n_ach = v["achievements_count"]
             del v["achievements_count"]
             v["achievements"] = [ach for ach in cls.yd_rand(a_list, n_ach)]
-            v["active"] = sum([ord(i) for i in p]) % 2
+            v["active"] = ("north", "south", "east", "west", "central")[
+                sum([ord(i) for i in p]) % 5
+            ]
             p_lst += [Player(p, **p_dict[p])]
         cls.s_list = _dict["sessions"]
         return cls(p_lst)
@@ -151,6 +188,15 @@ class ATracker:
     @staticmethod
     def active(e):
         return e["completed"] == False
+
+    @staticmethod
+    def levels(e):
+        if e < 2000:
+            return "low"
+        elif e < 6000:
+            return "medium"
+        else:
+            return "high"
 
 
 #    def __str__(self) -> str:

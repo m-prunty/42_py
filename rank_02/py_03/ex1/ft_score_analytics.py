@@ -7,7 +7,7 @@
 #    By: potz <maprunty@student.42.fr>             +#+  +:+       +#+         #
 #                                                +#+#+#+#+#+   +#+            #
 #    Created: 2026/01/23 03:20:50 by potz             #+#    #+#              #
-#    Updated: 2026/01/29 17:08:13 by maprunty        ###   ########.fr        #
+#    Updated: 2026/02/18 02:39:04 by maprunty        ###   ########.fr        #
 #                                                                             #
 # *************************************************************************** #
 """Exercise 1: Score Cruncher.
@@ -31,22 +31,12 @@ import sys
 
 
 class Scorecard:
-    """TODO: Docstring.
-
-    Optional longer description.
-
-    Attributes:
-        attr (type): Description.
-    """
+    """General class to handle scores."""
 
     def __init__(self, ac: int, scores: list[int]) -> None:
-        """TODO: Docstring."""
+        """Initialise Scorecard class."""
         self.scores = scores
         self.n = len(self.scores)
-
-    def __repr__(self) -> str:
-        """TODO: Docstring."""
-        return f"{self.scores!r}"
 
     def __str__(self) -> str:
         """TODO: Docstring."""
@@ -116,7 +106,7 @@ def main() -> None:
     print("=== Player Score Analytics ===")
     if ac <= 1:
         print(
-            "No scores provided. \
+            "No scores provided.\
 Usage: python3 ft_score_analytics.py <score1> <score2> ... "
         )
     else:

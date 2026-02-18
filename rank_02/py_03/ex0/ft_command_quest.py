@@ -7,12 +7,13 @@
 #    By: potz <maprunty@student.42.fr>             +#+  +:+       +#+         #
 #                                                +#+#+#+#+#+   +#+            #
 #    Created: 2026/01/23 02:29:57 by potz             #+#    #+#              #
-#    Updated: 2026/01/28 19:58:37 by maprunty        ###   ########.fr        #
+#    Updated: 2026/02/18 02:32:57 by maprunty        ###   ########.fr        #
 #                                                                             #
 # *************************************************************************** #
 """Exercise 0: Command Quest.
 
 First Foray into handling args.
+        r_str = ""
 
 Authorized: import sys, sys.argv, len(), print()
 """
