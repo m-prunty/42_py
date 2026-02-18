@@ -7,10 +7,16 @@
 #    By: potz <maprunty@student.42.fr>             +#+  +:+       +#+         #
 #                                                +#+#+#+#+#+   +#+            #
 #    Created: 2026/01/23 02:23:24 by potz             #+#    #+#              #
-#    Updated: 2026/02/05 23:42:18 by maprunty        ###   ########.fr        #
+#    Updated: 2026/02/18 03:35:02 by maprunty        ###   ########.fr        #
 #                                                                             #
 # *************************************************************************** #
-"""Build a 3D coordinate system using tuples.
+"""Achievement tracker and analytics using set operations.
+
+This module builds simple player/achievement structures and provides analytics:
+- Union of all achievements
+- Intersection common to all players
+- Rare achievements (present in exactly one player)
+- Pairwise comparison between two players
 
 Authorized: set(), len(), print(), union(), intersection(), difference()
 
@@ -37,66 +43,84 @@ Example: > python3 ft_achievement_tracker.py
 
 
 class Player:
-    """Player class."""
+    """A player with a name and a set of achievements.
 
-    def __init__(self, name: str, achievements: list[str]):
-        """TODO: to be defined."""
-        self.name = name
+    Args:
+        name: Player identifier.
+        achievements: Iterable of achievement names (converted to a set).
+    """
+
+    def __init__(self, name: str, achievements: list[str]) -> None:
+        self.name: str = name
         self.achievements = set(achievements)
 
     def __str__(self) -> str:
-        """Return a str represantation of a Player instance."""
-        r_str = ""
-        r_str += f"{self.name}: {self.achievements}"
-        return r_str
+        """Return a human-readable representation."""
+        return f"{self.name}: {self.achievements}"
 
     def __repr__(self) -> str:
-        """Represantation of a Vec3 instance."""
+        """Return a debug representation."""
         cls = self.__class__.__name__
-        return f"{cls}(name={self.name}, {[i for i in self.achievements]})"
+        return f"{cls}(name={self.name!r}, achievements={sorted(self.achievements)!r})"
 
     @property
     def achievements(self) -> set[str]:
-        """Achievements are a set of strings."""
+        """The player's achievements as a set of strings."""
         return self._achievements
 
     @achievements.setter
     def achievements(self, value: set[str]) -> None:
+        """Set the player's achievements.
+
+        Args:
+            value: Set of achievement names.
+        """
         self._achievements = value
 
 
 class ATracker:
-    """Docstring for ATracker."""
+    """Achievement tracker for multiple players.
 
-    def __init__(self, plyr_lst: list[Player]):
-        """TODO: to be defined."""
+    Args:
+        plyr_lst: List of players to track.
+    """
+
+    def __init__(self, plyr_lst: list[Player]) -> None:
         self.player_lst = plyr_lst
 
     def __repr__(self) -> str:
-        """TODO: Return a tuple represantation of a Vec3 instance."""
+        """Return a debug representation."""
         cls = self.__class__.__name__
-        return f"{cls}({[i for i in self.player_lst]})"
+        return f"{cls}(player_lst={self.player_lst!r})"
 
     def __str__(self) -> str:
-        """TODO: Return a tuple represantation of a Vec3 instance."""
+        """Return a formatted report including system, analytics and comparison."""
         r_str = ""
         r_str += f"{self.tracker_sys()}"
         r_str += f"\n{self.analytics()}"
         r_str += f"\n{self.player_cmp_ach(*self.player_lst[:2])}"
-        return f"{r_str}"
+        return r_str
 
     def tracker_sys(self) -> str:
-        """Return a string of tracking info."""
+        """Build the tracker overview output.
+
+        Returns:
+            A formatted string listing each player's achievements.
+        """
         r_str = "\n=== Achievement Tracker System ===\n"
         for p in self.player_lst:
             r_str += f"\nPlayer {p.name} achievements: {p.achievements}"
         return r_str
 
     def analytics(self) -> str:
-        """Return a string of analytics data."""
+        """Build the analytics output.
+
+        Returns:
+            A formatted string showing union, count, intersection and rare set.
+        """
         all_ach = self.all_achievements
         r_str = "\n=== Achievement Analytics ==="
-        r_str += f"\nAll unique Achievements: {all_ach}"
+        r_str += f"\nAll unique achievements: {all_ach}"
         r_str += f"\nTotal unique achievements: {len(all_ach)}"
         r_str += (
             f"\n\nCommon to all players: {self.common_toall(self.player_lst)}"
@@ -105,13 +129,25 @@ class ATracker:
         return r_str
 
     def player_cmp_ach(self, p1: Player, p2: Player) -> str:
-        """Get achs common to 2 players and the 1's unique toeach other."""
+        """Compare achievements between two players.
+
+        Computes:
+        - common achievements
+        - achievements unique to each player
+
+        Args:
+            p1: First player.
+            p2: Second player.
+
+        Returns:
+            A formatted comparison string.
+        """
         common = p1.achievements & p2.achievements
         p1_unq = p1.achievements - common
         p2_unq = p2.achievements - common
-        r_str = f"\n{p1.name.capitalize()} vs {p2.name.capitalize()}: {common}"
-        r_str += f"\n{p1.name.capitalize()}: {p1_unq}"
-        r_str += f"\n{p2.name.capitalize()}: {p2_unq}"
+        r_str = f"\n{p1.name.capitalize()} vs {p2.name.capitalize()} common: {common}"
+        r_str += f"\n{p1.name.capitalize()} unique: {p1_unq}"
+        r_str += f"\n{p2.name.capitalize()} unique: {p2_unq}"
         return r_str
 
     @property
@@ -121,7 +157,7 @@ class ATracker:
         Uses set Union (|) to build a list of all unique elemenmts
 
         Returns:
-            type: Description.
+            A set containing all unique achievements from all players.
         """
         self._all_achievements = set()
         for p in self.player_lst:
@@ -130,12 +166,16 @@ class ATracker:
 
     @property
     def player_lst(self) -> list[Player]:
-        """TODO: Docstring."""
+        """List of tracked players."""
         return self._player_lst
 
     @player_lst.setter
     def player_lst(self, value: list[Player]) -> None:
-        """TODO: Docstring."""
+        """Set the list of tracked players.
+
+        Args:
+            value: List of Player objects.
+        """
         self._player_lst = value
 
     @staticmethod
@@ -144,8 +184,16 @@ class ATracker:
 
         uses set intersection (&) to build a list of ach of ALL players
         Args:
-            player_lst (list[Player]): the list of Players.
+            player_lst: List of players.
+
+        Returns:
+            A set of achievements shared by every player.
+
+        Raises:
+            ValueError: If player_lst is empty.
         """
+        if not player_lst:
+            raise ValueError("player_lst must not be empty")
         p_set = set(player_lst[0].achievements)
         for p in player_lst[1:]:
             p_set &= p.achievements
@@ -167,42 +215,51 @@ class ATracker:
 
         Args:
             player_lst (list[Player]): the list of players
+        
+        Returns:
+            A set of achievements achieved by exactly one player.
         """
-        diff_set = set()
-        seen_set = set()
+        diff_set: set[str] = set()
+        seen_set: set[str] = set()
         for p in player_lst:
-            print(seen_set, diff_set, diff_set & p.achievements)
             seen_set |= diff_set & p.achievements
             diff_set ^= p.achievements
-        print(diff_set, seen_set)
         return diff_set - seen_set
 
     @classmethod
     def from_dict(cls, plyr_dict: dict[str, list[str]]) -> "ATracker":
-        """TODO: Docstring for from_dict.
+        """Construct a tracker from a dict mapping names to achievements.
 
         Args:
-            plyr_dict (dict): TODO
+            plyr_dict: Mapping of player name to list of achievement strings.
 
-        Returns: TODO
-
+        Returns:
+            An initialized ATracker instance.
         """
-        p_lst = []
-        for p in plyr_dict:
-            p_lst += [Player(p, plyr_dict[p])]
+        p_lst: list[Player] = []
+        for name, ach_list in plyr_dict.items():
+            p_lst.append(Player(name, ach_list))
         return cls(p_lst)
 
 
-def get_args_dict() -> tuple[int, dict[list[str]]]:
-    """Retrieve program argc and argv as dict and return.
+def get_args_dict() -> tuple[int, dict[str, list[str]]]:
+    """Parse CLI arguments into a mapping of player->achievements.
 
-    NB: not including av[0] - program name str
-    Returns: argc as int and argv as list[int]
+    Expected format:
+        name: ach1 ach2 ach3 name2: ach1 ...
+
+    Example:
+        ./ft_achievement_tracker.py alice: first_kill level_10 bob: collector
+
+    Returns:
+        A tuple (argc, argv_dict) where:
+            argc: Number of parsed player entries.
+            argv_dict: Mapping of player name -> list of achievements.
     """
     import sys
 
     av = sys.argv
-    r_dct: dict[list[str]] = dict()
+    r_dct: dict[str, list[str]] = {}
     key = "Dummy"
     for a in av[1:]:
         try:
@@ -216,8 +273,12 @@ def get_args_dict() -> tuple[int, dict[list[str]]]:
     return (len(r_dct), r_dct)
 
 
-def first_start() -> dict[list[str]]:
-    """Define a default starting dict."""
+def first_start() -> dict[str, list[str]]:
+    """Provide a default dataset for demonstration.
+
+    Returns:
+        Mapping of player names to their achievement lists.
+    """
     return {
         "alice": ["first_kill", "level_10", "treasure_hunter", "speed_demon"],
         "bob": ["first_kill", "level_10", "boss_slayer", "collector"],
@@ -232,14 +293,13 @@ def first_start() -> dict[list[str]]:
 
 
 def main() -> None:
-    """Driver creates dict and Player list."""
+    """Program entry point."""
     ac, av = get_args_dict()
     if ac <= 1:
-        a = ATracker.from_dict(first_start())
-        print(a)
+        tracker = ATracker.from_dict(first_start())
     else:
-        a = ATracker.from_dict(av)
-        print(a)
+        tracker = ATracker.from_dict(av)
+    print(tracker)
 
 
 if __name__ == "__main__":

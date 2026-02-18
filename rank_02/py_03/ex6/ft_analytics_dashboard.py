@@ -7,37 +7,47 @@
 #    By: potz <maprunty@student.42.fr>             +#+  +:+       +#+         #
 #                                                +#+#+#+#+#+   +#+            #
 #    Created: 2026/01/23 02:24:15 by potz             #+#    #+#              #
-#    Updated: 2026/02/18 02:24:12 by maprunty        ###   ########.fr        #
+#    Updated: 2026/02/18 07:21:46 by maprunty        ###   ########.fr        #
 #                                                                             #
 # *************************************************************************** #
-"""TODO: Short module summary.
+"""Game Analytics Dashboard.
 
-Optional longer description.
-=== Game Analytics Dashboard ===
-=== List Comprehension Examples ===
-High scorers (>2000): ['alice', 'charlie', 'diana']
-Scores doubled: [4600, 3600, 4300, 4100]
-Active players: ['alice', 'bob', 'charlie']
-=== Dict Comprehension Examples ===
-Player scores: {'alice': 2300, 'bob': 1800, 'charlie': 2150}
-Score categories: {'high': 3, 'medium': 2, 'low': 1}
-Achievement counts: {'alice': 5, 'bob': 3, 'charlie': 7}
-=== Set Comprehension Examples ===
-Unique players: {'alice', 'bob', 'charlie', 'diana'}
-Unique achievements: {'first_kill', 'level_10', 'boss_slayer'}
-Active regions: {'north', 'east', 'central'}
-=== Combined Analysis ===
-Total players: 4
-Total unique achievements: 12
-Average score: 2062.5
-Top performer: alice (2300 points, 5 achievements)
+This module builds a small dashboard from player/session seed data and prints
+examples of list/dict/set comprehensions plus a combined summary analysis.
+
+Input is expected via CLI as a Python-literal dict (parsed with
+``ast.literal_eval``). The schema is roughly:
+
+- players: dict[str, dict[str, int | str]]
+    Must include: level, total_score, sessions_played, favorite_mode,
+    achievements_count (int)
+- achievements: list[str]
+- sessions: iterable[dict[str, object]]
+    Used by ``eg_list()`` to report active players (sessions where completed is
+    False).
+
+The printed output sections are:
+- List Comprehension Examples
+- Dict Comprehension Examples
+- Set Comprehension Examples
+- Combined Analysis
 """
 
 import random
 
 
 class Player:
-    """Player class."""
+    """A game player model.
+
+    Attributes:
+        name: Player name/identifier.
+        level: Current player level.
+        total_score: Total accumulated score.
+        sessions_played: Number of sessions played.
+        favorite_mode: Favorite game mode.
+        achievements: List of achievement identifiers.
+        active: Region string assigned deterministically (historical name kept).
+    """
 
     def __init__(
         self,
@@ -59,33 +69,32 @@ class Player:
         self.active = active
 
     def __str__(self) -> str:
-        """Return a str represantation of a Player instance."""
-        r_str = ""
-        r_str += f"{self.name}: {self.achievements}"
-        return r_str
-
-    def __repr__(self) -> str:
-        """Represantation of a Vec3 instance."""
-        cls = self.__class__.__name__
-        dct = self.__dict__
-        d_str = ", ".join(f"{i}={dct[i]}" for i in dct)
-        return f"{cls}({d_str})\n"
+        """Return a user-friendly representation."""
+        return f"{self.name}: {self.achievements}"
 
 
 class ATracker:
-    """Docstring for ATracker."""
+    """Analytics tracker that formats a dashboard from a list of players.
 
-    def __init__(self, plyr_lst: list[Player]):
-        """TODO: to be defined."""
+    Instances are typically built via :meth:`from_dict`.
+    """
+
+
+    def __init__(self, plyr_lst: list[Player]) -> None:
+        """Initialize tracker.
+
+        Args:
+            plyr_lst: Players to analyze.
+        """
         self.player_lst = plyr_lst
 
     def __repr__(self) -> str:
-        """TODO: Return a tuple represantation of a Vec3 instance."""
+        """Return debug representation."""
         cls = self.__class__.__name__
-        return f"{cls}({[i for i in self.player_lst]})"
+        return f"{cls}({self.player_lst!r})"
 
     def __str__(self) -> str:
-        """TODO: Return a tuple represantation of a Vec3 instance."""
+        """Render the full dashboard as a string."""
         r_str = ""
         r_str += "=== Game Analytics Dashboard ===\n\n"
         r_str += self.eg_list() + "\n"
@@ -94,10 +103,15 @@ class ATracker:
         r_str += self.eg_analysis() + "\n"
         return r_str
 
-    def eg_list(self):
-        hi_sc = [i.name for i in self.player_lst if i.total_score > 2000]
-        sc_x2 = [i.total_score * 2 for i in self.player_lst]
-        act_p = [i["player"] for i in self.filter(self.active, self.s_list)]
+    def eg_list(self) -> str:
+        """Generate list-comprehension examples section.
+
+        Returns:
+            Formatted section string.
+        """
+        hi_sc: list[str] = [p.name for p in self.player_lst if p.total_score > 2000]
+        sc_x2: list[int] = [p.total_score * 2 for p in self.player_lst]
+        act_p: list[str] = [s["player"] for s in self.filter(self.active, self.s_list)]
         r_str = ""
         r_str += "=== List Comprehension Examples ===\n"
         r_str += f"High Scorers: {hi_sc}\n"
@@ -105,15 +119,18 @@ class ATracker:
         r_str += f"Active Players: {act_p}\n"
         return r_str
 
-    def eg_dict(self):
-        p_sc = {p.name: p.total_score for p in self.player_lst}
-        sc_cat = {
-            k: sum(
-                1 for v in self.player_lst if self.levels(v.total_score) == k
-            )
+    def eg_dict(self) -> str:
+        """Generate dict-comprehension examples section.
+
+        Returns:
+            Formatted section string.
+        """
+        p_sc: dict[str, int] = {p.name: p.total_score for p in self.player_lst}
+        sc_cat: dict[str, int] = {
+            k: sum(1 for p in self.player_lst if self.levels(p.total_score) == k)
             for k in ("high", "medium", "low")
         }
-        ach_c = {i.name: len(i.achievements) for i in self.player_lst}
+        ach_c: dict[str, int] = {p.name: len(p.achievements) for p in self.player_lst}
         r_str = ""
         r_str += "=== Dict Comprehension Examples ===\n"
         r_str += f"Player scores: {p_sc}\n"
@@ -121,18 +138,31 @@ class ATracker:
         r_str += f"Achievement counts: {ach_c}\n"
         return r_str
 
-    def eg_set(self):
-        p_unq = {p.name for p in self.player_lst}
-        ach_unq = {j for i in self.player_lst for j in i.achievements}
-        act_reg = {i.active for i in self.player_lst}
+    def eg_set(self) -> str:
+        """Generate set-comprehension examples section.
+
+        Returns:
+            Formatted section string.
+        """
+        p_unq: set[str] = {p.name for p in self.player_lst}
+        ach_unq: set[str] = {a for p in self.player_lst for a in p.achievements}
+        act_reg: set[str] = {p.active for p in self.player_lst}
         r_str = ""
         r_str += "=== Set Comprehension Examples ===\n"
         r_str += f"Unique players: {p_unq}\n"
         r_str += f"Unique achievements: {ach_unq}\n"
         r_str += f"Active regions: {act_reg}\n"
         return r_str
+    
+    def eg_analysis(self) -> str:
+        """Generate combined summary analysis section.
 
-    def eg_analysis(self):
+        Returns:
+            Formatted section string.
+
+        Raises:
+            ValueError: If there are no players.
+        """
         p_unq = len({p.name for p in self.player_lst})
         ach_unq = len({j for i in self.player_lst for j in i.achievements})
         p_sc = [p.total_score for p in self.player_lst]
@@ -147,15 +177,19 @@ class ATracker:
 
     @classmethod
     def from_dict(cls, _dict: dict[str, list[str]]) -> "ATracker":
-        """TODO: Docstring for from_dict.
+        """Build an :class:`ATracker` from seed data.
+
+        This expands each player's ``achievements_count`` into a concrete
+        achievements list sampled from ``data["achievements"]`` and assigns
+        a deterministic region string to ``Player.active``.
 
         Args:
-            plyr_dict (dict): TODO
+            data: Parsed seed dictionary.
 
-        Returns: TODO
-
+        Returns:
+            A fully constructed tracker instance.
         """
-        p_lst = []
+        p_lst: list[Player] = []
         p_dict = _dict["players"]
         a_list = _dict["achievements"]
         for p, v in p_dict.items():
@@ -175,42 +209,51 @@ class ATracker:
 
     @staticmethod
     def filter(fn, it=None):
+        """Lazy filter generator (kept to mirror builtins.filter usage)."""
         return (e for e in it if fn(e))
 
     @staticmethod
     def map(fn, it=None, val=None):
+        """Lazy map generator applying `fn(e, val)`."""
         return (fn(e, val) for e in it)
 
     @staticmethod
     def val_(e, key):
+        """Return dict value for key."""
         return e[key]
 
     @staticmethod
     def active(e):
+        """Return True if a session dict is marked as not completed."""
         return e["completed"] == False
 
     @staticmethod
-    def levels(e):
-        if e < 2000:
+    def levels(score: int) -> str:
+        """Bucketize score into low/medium/high.
+
+        Args:
+            score: Player score.
+
+        Returns:
+            One of: "low", "medium", "high".
+        """
+        if score < 2000:
             return "low"
-        elif e < 6000:
+        elif score < 6000:
             return "medium"
-        else:
-            return "high"
+        return "high"
 
 
-#    def __str__(self) -> str:
-#        """TODO: Return a tuple represantation of a Vec3 instance."""
-#        r_str = ""
-#        r_str += f"{self.tracker_sys()}"
-#        r_str += f"\n{self.analytics()}"
-#        r_str += f"\n{self.player_cmp_ach(*self.player_lst[:2])}"
-#        return f"{r_str}"
-#
+def get_args_dict() -> tuple[int, dict[str, str]]:
+    """Parse CLI args as a Python-literal dict.
 
+    The CLI is expected to provide a single Python-literal dict or fragments
+    that join into one (original behavior preserved).
 
-def get_args_dict() -> tuple[int, dict[list[str]]]:
-    """Retrieve program argc and argv as dict and return.
+    Returns:
+        A tuple of:
+        - argc: Pseudo-argc defined as ``len(parsed_dict) + 1``.
+        - argv_dict: Parsed seed dict (empty if nothing provided).
 
     NB: not including av[0] - program name str
     Returns: argc as int and argv as list[int]
@@ -232,23 +275,8 @@ def main() -> None:
     if ac <= 1:
         print("please enter seed list[dict]")
         return
-    a = ATracker.from_dict(av)
-    print(a)
+    print(ATracker.from_dict(av))
 
-
-#    print(av.keys())
-#    print(av["game_modes"])
-#    print(av["achievements"])
-#    print(av["players"])
-#    if ac <= 1:
-#        print("please enter seed list[dict]")
-#    else:
-#        a = Event(av)
-#    g = GenEvent(1000)
-#    g.get_preevents(a)
-#    a.e_list = g.genevents()
-#    print(a)
-#    print(gen_demo())
 
 if __name__ == "__main__":
     main()

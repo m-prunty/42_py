@@ -7,93 +7,43 @@
 #    By: potz <maprunty@student.42.fr>             +#+  +:+       +#+         #
 #                                                +#+#+#+#+#+   +#+            #
 #    Created: 2026/01/23 02:23:59 by potz             #+#    #+#              #
-#    Updated: 2026/02/13 13:01:09 by maprunty        ###   ########.fr        #
+#    Updated: 2026/02/18 06:57:32 by maprunty        ###   ########.fr        #
 #                                                                             #
 # *************************************************************************** #
-"""TODO: Short module summary.
-next(), iter(), range(), len(), print(), typing.Generator
-Optional longer description.
+"""Stream-style game event generation and analytics.
 
-=== Game Data Stream Processor ===
-Processing 1000 game events...
-Event 1: Player alice (level 5) killed monster
-Event 2: Player bob (level 12) found treasure
-Event 3: Player charlie (level 8) leveled up
-...
-=== Stream Analytics ===
-Total events processed: 1000
-High-level players (10+): 342
-Treasure events: 89
-Level-up events: 156
-Memory usage: Constant (streaming)
-Processing time: 0.045 seconds
-=== Generator Demonstration ===
-Fibonacci sequence (first 10): 0, 1, 1, 2, 3, 5, 8, 13, 21, 34
-Prime numbers (first 5): 2, 3, 5, 7, 11
+This module demonstrates:
+- Using generators (`__iter__`, `filter`, `map`) to process events in a
+  streaming fashion.
+- Building synthetic event streams from an initial seed event list.
+- Two generator examples: Fibonacci and prime numbers.
+
+The output shows a short preview of events and basic analytics computed by
+streaming over the event list.
 """
 
 from random import randint
-
-
-class GenEvent:
-    """TODO: Docstring."""
-
-    def __init__(self, n: int) -> None:
-        """TODO: init summary for GenEvent.
-
-        Args:
-            n (int): n events to gen
-        """
-        self.n = n
-
-    def get_preevents(self, e):
-        self.events = [
-            list(set(e.map(e.val_, val="player"))),
-            list(set(e.map(e.val_, val="event_type"))),
-            list(set(e.map(e.val_, val="timestamp"))),
-            list(range(1, 50)),
-            list(range(-500, 500)),
-            list(set(e.map(e.dataval_, val="zone"))),
-        ]
-
-    def get_rands(self):
-        r_list = list()
-        for i in self.events:
-            r_list += [randint(0, len(i) - 1)]
-        return r_list
-
-    def genevents(self):
-        r_lst = []
-        for i in range(self.n):
-            r_lst += [self.genevent(i + 1, self.get_rands())]
-        return r_lst
-
-    def genevent(self, id_: int, rands: list[int]):
-        r_dct: dict[str, int | str] = dict()
-        r_dct["id"] = id_
-        r_dct["player"] = self.events[0][rands[0]]
-        r_dct["event_type"] = self.events[1][rands[1]]
-        r_dct["timestamp"] = self.events[2][rands[2]]
-        r_dct["data"] = {
-            "level": self.events[3][rands[3]],
-            "score_delta": self.events[4][rands[4]],
-            "zone": self.events[5][rands[5]],
-        }
-        return r_dct
-
+from typing import Generator
 
 class Event:
-    """TODO: Docstring."""
+    """Event stream container with generator-style helpers.
 
-    def __init__(self, event_list: list[dict]) -> None:
-        """TODO: init summary for Event.
+    Provides:
+    - `__iter__()` to iterate events
+    - `filter()` and `map()` returning generator expressions
+    - analytics counters derived via streaming iteration
+    """
+
+    def __init__(self, event_list: list[dict[str, str]]) -> None:
+        """Create an Event container.
 
         Args:
-            event_list (list[dict]): Description.
+            event_list: List of event dictionaries.
         """
-        self.e_list = event_list
+        self.e_list: list[dict[str, str]] = event_list
 
-    def __str__(self):
+    def __str__(self) -> str:
+        """Render a preview + analytics summary."""
         r_str = ""
         r_str += "=== Game Data Stream Processor ===\n"
         r_str += f"\nProcessing {self.e_list[-1]['id']}, game events..\n"
@@ -104,7 +54,12 @@ class Event:
         r_str += f"{self.analytics()}\n"
         return r_str
 
-    def analytics(self):
+    def analytics(self) -> str:
+        """Compute streaming analytics counters.
+
+        Returns:
+            A formatted analytics report.
+        """
         r_str = "\n"
         r_str += "=== Stream Analytics ===\n"
         r_str += f"Total events processed {self.e_list[-1]['id']}\n"
@@ -116,49 +71,175 @@ class Event:
         r_str += f"Level-up events: {lvlup}"
         return r_str
 
-    def __iter__(self):
-        e = iter(self.e_list)
-        yield from e
+    def __iter__(self) -> Generator[dict[str, str], None, None]:
+        """Iterate over stored events."""
+        yield from iter(self.e_list)
 
-    def filter(self, fn, it=None):
+
+    def filter(self, fn, it=None) -> Generator[dict[str, str], None, None]:
+        """Filter events with a predicate.
+
+        Args:
+            fn: Predicate returning True to keep an event.
+            it: Optional iterable to filter; defaults to this Event stream.
+
+        Returns:
+            Iterator of matching events.
+        """
         it = it or self
         return (e for e in it if fn(e))
 
-    def map(self, fn, it=None, val=None):
+    def map(self, fn, it=None, val=None) -> Generator[dict[str, str], None, None]:
+        """Map events through a function.
+
+        Args:
+            fn: Mapping function called as `fn(event, val)`.
+            it: Optional iterable to map; defaults to this Event stream.
+            val: Optional extra selector passed to `fn`.
+
+        Returns:
+            Iterator of mapped values.
+        """
         it = it or self
         return (fn(e, val) for e in it)
 
-    def n_e(self, e):
-        if e["id"] <= 3:
-            return 1
+    def n_e(self, e: dict[str, int]) -> bool:
+        """Keep only first 3 events (for preview)."""
+        return e["id"] <= 3
 
-    def n_hilevel(self, e):
+    def n_hilevel(self, e: dict[str, dict[str, int]]) -> bool:
+        """Select high-level players (level >= 10)."""
         return e["data"]["level"] >= 10
 
-    def n_treasure(self, e):
+    def n_treasure(self, e: dict[str, str]) -> bool:
+        """Select treasure events."""
         return e["event_type"] == "item_found"
 
-    def n_lvlup(self, e):
+    def n_lvlup(self, e:  dict[str, str]) -> bool:
+        """Select level-up events."""
         return e["event_type"] == "level_up"
 
-    def str_(self, e, val=None):
+    def str_(self, e: dict[str, dict[str, str]], val: str='') -> str:
+        """Render one event line."""
         r_str = "\n"
         r_str += f"Event {e['id']}: Player {e['player']} "
         r_str += f"(level {e['data']['level']}) "
         r_str += f"{e['event_type']}"
         return r_str
 
-    def val_(self, e, key):
-        r_val = e[key]
-        return r_val
+    def val_(self, e: dict[str, str], key: str) -> str:
+        """Extract a value by key from a dict.
 
-    def dataval_(self, e, key):
-        e_val = e["data"]
-        return self.val_(e_val, key)
+        Args:
+            e: Source dict.
+            key: Key to extract.
+
+        Returns:
+            The dict value.
+
+        Raises:
+            KeyError: If key is missing.
+            TypeError: If key is None.
+        """
+        if key is None:
+            raise TypeError("key must not be None")
+        return e[key]
+
+    def dataval_(self, e: dict[str, dict[str, str]], key: str) -> str:
+        """Extract a value from the nested `data` dict.
+
+        Args:
+            e: Event dict.
+            key: Key in `e['data']`.
+
+        Returns:
+            The extracted value.
+        """
+        return self.val_(e["data"], key)
 
 
-def fib_n(n):
-    """F_n=F_(n-1)+F_(n-2)"""
+class GenEvent:
+    """Generate synthetic events using value pools derived from a seed stream.
+
+    Typical usage:
+        seed = Event(seed_events)
+        gen = GenEvent(1000)
+        gen.get_preevents(seed)
+        seed.e_list = gen.genevents()
+    """
+
+    def __init__(self, n: int) -> None:
+        """Initialize generator.
+
+        Args:
+            n: Number of events to generate.
+        """
+        self.n: int = n
+        self.events: list[list[int] | Generator[dict[str, str], None, None]] = []
+
+    def get_preevents(self, e: Event) -> None:
+        """Build sampling pools from a seed event stream.
+
+        Args:
+            e: Seed events container used to extract unique values.
+        """
+        self.events = [
+            list(set(e.map(e.val_, val="player"))),
+            list(set(e.map(e.val_, val="event_type"))),
+            list(set(e.map(e.val_, val="timestamp"))),
+            list(range(1, 50)),
+            list(range(-500, 500)),
+            list(set(e.map(e.dataval_, val="zone"))),
+        ]
+
+    def get_rands(self) -> list[int]:
+        """Return one random index per sampling pool."""
+        r_list = list()
+        for i in self.events:
+            r_list += [randint(0, len(i) - 1)]
+        return r_list
+
+    def genevents(self) -> list[Event]:
+        """Generate `n` events."""
+        r_lst: list[Event] = []
+        for i in range(self.n):
+            r_lst += [self.genevent(i + 1, self.get_rands())]
+        return r_lst
+
+    def genevent(self, id_: int, rands: list[int]) -> Event:
+        """Generate a single event.
+
+        Args:
+            id_: Event id.
+            rands: Random indices, one per sampling pool.
+
+        Returns:
+            A generated event dict.
+        """
+        r_dct: dict[str, str | int | dict[str, int|str]] = {
+            "id": id_,
+            "player": str(self.events[0][rands[0]]),
+            "event_type": str(self.events[1][rands[1]]),
+            "timestamp": str(self.events[2][rands[2]]),
+            "data": {
+                "level": int(self.events[3][rands[3]]),
+                "score_delta": int(self.events[4][rands[4]]),
+                "zone": str(self.events[5][rands[5]]),
+            },
+        }
+        return r_dct
+
+
+def fib_n(n: int) -> Generator[int, None, None]:
+    """Generate first `n` Fibonacci numbers.
+
+    F_n=F_(n-1)+F_(n-2)
+    Args:
+        n: Number of values to generate.
+
+    Yields:
+        Fibonacci sequence values.
+    """
     n1, n2 = 0, 1
     for i in range(n):
         yield n1
@@ -166,15 +247,21 @@ def fib_n(n):
         n1 = n2
         n2 = tmp + n2
 
+def prime_n(n_iters: int) -> Generator[int, None, None]:
+    """Generate the first `n_iters` prime numbers.
 
-def prime_n(n_iters):
-    """A."""
+    Args:
+        n_iters: Number of primes to generate.
+
+    Yields:
+        Prime numbers in increasing order.
+    """
     n = n_iters
     s_i = 2
 
-    def is_prime(n):
-        for i in range(2, n):
-            if n % i == 0:
+    def is_prime(x: int) -> bool:
+        for i in range(2, x):
+            if x % i == 0:
                 return False
         return True
 
@@ -187,46 +274,64 @@ def prime_n(n_iters):
             s_i = n
             n = n * n
 
+import ast
+import sys
+def get_args_dict() -> tuple[int, dict[str, str | ast.AST]]:
+    """Parse CLI args as a Python literal list of event dicts.
 
-def get_args_dict() -> tuple[int, dict[list[str]]]:
-    """Retrieve program argc and argv as dict and return.
+    Expected usage example:
+        ./ft_data_stream.py "[{'id': 1, 'player': 'alice', ...}, {...}]"
 
-    NB: not including av[0] - program name str
-    Returns: argc as int and argv as list[int]
+    Notes:
+        - Does not include argv[0].
+        - Uses `ast.literal_eval` (safer than eval), but still expects valid
+          Python literal syntax.
+
+    Returns:
+        A tuple of (argc, argv_list), where:
+        - argc is computed as len(argv_list) + 1 (to mimic C argc style)
+        - argv_list is the parsed list of events
     """
-    import ast
-    import sys
 
     av = sys.argv
-    r_dct: dict[list[str]] = dict()
+    r_dct: dict[str, str | ast.AST] = dict()
     if len(av[1:]):
-        av = " ".join(str(x) for x in av[1:])
-        r_dct = ast.literal_eval(av)
+        lst = " ".join(str(x) for x in av[1:])
+        r_dct = ast.literal_eval(lst)
     return (len(r_dct) + 1, r_dct)
 
 
-def gen_demo(fib: int = 10, prime: int = 5):
+def gen_demo(fib: int = 10, prime: int = 5) -> str:
+    """Return a formatted demonstration of generator outputs.
+
+    Args:
+        fib: Number of Fibonacci values.
+        prime: Number of prime values.
+
+    Returns:
+        A formatted string with generated sequences.
+    """
     r_str = ""
     r_str += "=== Generator Demonstration ===\n"
-    r_str += (
-        f"Fibonacci sequence (first {fib}): {', '.join(map(str, fib_n(fib)))}"
-    )
+    r_str += f"Fibonacci sequence (first {fib}): {', '.join(map(str, fib_n(fib)))}"
     r_str += "\n"
-    r_str += (
-        f"Prime numbers (first {prime}): {', '.join(map(str, prime_n(prime)))}"
-    )
+    r_str += f"Prime numbers (first {prime}): {', '.join(map(str, prime_n(prime)))}"
     r_str += "\n"
     return r_str
 
 
 def main() -> None:
-    """Driver creates dict and Player list."""
+    """Program entry point.
+
+    Reads seed events from CLI args, generates a larger synthetic stream, prints
+    preview + analytics, then prints generator demonstrations.
+    """
     ac, av = get_args_dict()
     if ac <= 1:
         print("please enter seed list[dict]")
         return
-    else:
-        a = Event(av)
+
+    a = Event(av)
     g = GenEvent(1000)
     g.get_preevents(a)
     a.e_list = g.genevents()

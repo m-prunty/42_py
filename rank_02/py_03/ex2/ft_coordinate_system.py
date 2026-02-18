@@ -7,10 +7,13 @@
 #    By: potz <maprunty@student.42.fr>             +#+  +:+       +#+         #
 #                                                +#+#+#+#+#+   +#+            #
 #    Created: 2026/01/23 02:21:53 by potz             #+#    #+#              #
-#    Updated: 2026/01/30 21:15:40 by maprunty        ###   ########.fr        #
+#    Updated: 2026/02/18 03:21:26 by maprunty        ###   ########.fr        #
 #                                                                             #
 # *************************************************************************** #
 """Build a 3D coordinate system using tuples.
+
+This module provides a small 3D integer vector type (`Vec3`), a `Player` wrapper
+around a position, and a tiny CLI demo.
 
 Authorized:
     import sys, sys.argv, import math, tuple(), int(), float(),
@@ -37,106 +40,164 @@ import sys
 from math import sqrt
 
 
-class Vec3:
-    """TODO: Summary of the class.
+class CoordError(ValueError):
+    """Raised when a coordinate cannot be parsed or coerced to an integer.
 
-    Optional longer description.
-
-    Attributes:
-        attr (type): Description.
+    Args:
+        *args: Message parts (kept compatible with `ValueError`).
     """
 
-    def __init__(self, x: int = 0, y: int = 0, z: int = 0):
-        """TODO: init summary for MyClass.
+    def __init__(self, *args: object) -> None:
+        super().__init__(*args)
+
+
+class Vec3:
+    """3D integer vector.
+
+    The vector stores integer coordinates and supports basic vector arithmetic.
+
+    Attributes:
+        x: X coordinate (int).
+        y: Y coordinate (int).
+        z: Z coordinate (int).
+    """
+
+    def __init__(self, x: int = 0, y: int = 0, z: int = 0) -> None:
+        """Initialize a `Vec3`.
 
         Args:
-            x (int): x coordinate; defaults to 0 if none given.
-            y (int): y coordinate; defaults to 0 if none given.
-            z (int): z coordinate; defaults to 0 if none given.
+            x: X coordinate (coerced with `int()`).
+            y: Y coordinate (coerced with `int()`).
+            z: Z coordinate (coerced with `int()`).
+
+        Raises:
+            CoordError: If any coordinate cannot be coerced to `int`.
         """
-        try:
-            self.x = x
-            self.y = y
-            self.z = z
-        except CoordError as ce:
-            raise CoordError(ce) from ce
+        self.x = x
+        self.y = y
+        self.z = z
 
     def __add__(self, other: "Vec3") -> "Vec3":
-        """Add a vec3 instance with another."""
-        return Vec3(
-            self.x + other.x,
-            self.y + other.y,
-            self.z + other.z,
-        )
+        """Add two vectors component-wise.
+
+        Args:
+            other: Another vector.
+
+        Returns:
+            A new `Vec3` equal to `self + other`.
+        """
+        return Vec3(self.x + other.x, self.y + other.y, self.z + other.z)
 
     def __sub__(self, other: "Vec3") -> "Vec3":
-        """Sub a vec3 instance with another."""
-        return Vec3(
-            self.x - other.x,
-            self.y - other.y,
-            self.z - other.z,
-        )
+        """Subtract two vectors component-wise.
+
+        Args:
+            other: Another vector.
+
+        Returns:
+            A new `Vec3` equal to `self - other`.
+        """
+        return Vec3(self.x - other.x, self.y - other.y, self.z - other.z)
 
     def __abs__(self) -> float:
-        """Return magnitude of a vector."""
+        """Compute the Euclidean magnitude of the vector.
+
+        Returns:
+            Vector length as a float.
+        """
         return sqrt(self.x**2 + self.y**2 + self.z**2)
 
     def __repr__(self) -> str:
-        """Return a tuple represantation of a Vec3 instance."""
+        """Return a debug representation.
+
+        Returns:
+            A string like `Vec3(1, 2, 3)`.
+        """
         cls = self.__class__.__name__
         return f"{cls}({self.x}, {self.y}, {self.z})"
 
     def __str__(self) -> str:
-        """Return a str tuple represantation of a Vec3 instance."""
-        return f"{self.__repr__()}"
+        """Return a user-facing representation.
 
+        Returns:
+            A string like `(1, 2, 3)`.
+        """
+        return f"({self.x}, {self.y}, {self.z})"
     @property
     def x(self) -> int:
-        """X coordinate value."""
+        """X coordinate."""
         return self._x
 
     @x.setter
     def x(self, value: int) -> None:
+        """Set X coordinate.
+
+        Args:
+            value: Value coerced to `int`.
+
+        Raises:
+            CoordError: If coercion fails.
+        """
         try:
             self._x = int(value)
-        except (ValueError, TypeError) as ce:
-            raise CoordError(ce) from ce
+        except (ValueError, TypeError) as exc:
+            raise CoordError(str(exc)) from exc
 
     @property
     def y(self) -> int:
-        """Y coordinate value."""
+        """Y coordinate."""
         return self._y
 
     @y.setter
     def y(self, value: int) -> None:
+        """Set Y coordinate.
+
+        Args:
+            value: Value coerced to `int`.
+
+        Raises:
+            CoordError: If coercion fails.
+        """
         try:
             self._y = int(value)
-        except (ValueError, TypeError) as ce:
-            raise CoordError(ce) from ce
+        except (ValueError, TypeError) as exc:
+            raise CoordError(str(exc)) from exc
 
     @property
     def z(self) -> int:
-        """Z coordinate value."""
+        """Z coordinate."""
         return self._z
 
     @z.setter
     def z(self, value: int) -> None:
+        """Set Z coordinate.
+
+        Args:
+            value: Value coerced to `int`.
+
+        Raises:
+            CoordError: If coercion fails.
+        """
         try:
             self._z = int(value)
-        except (ValueError, TypeError) as ce:
-            raise CoordError(ce) from ce
+        except (ValueError, TypeError) as exc:
+            raise CoordError(str(exc)) from exc
 
     @staticmethod
     def ft_split(string: str, char: str) -> list[str]:
-        """TODO: Docstring for ft_split.
+        """Split a string on a single delimiter (42-style helper).
 
-        Returns: TODO
+        Args:
+            string: Input string.
+            char: Delimiter string (only `char[0]` is used).
 
+        Returns:
+            List of non-empty segments (consecutive delimiters are skipped).
         """
         i = 0
         j = 0
         n = len(string)
-        r_list = []
+        r_list: list[str] = []
         while i < n:
             while i < n and string[i] == char[0]:
                 i += 1
@@ -153,47 +214,62 @@ class Vec3:
 
     @staticmethod
     def parse_args(av: list[str]) -> list[int]:
-        """TODO: Docstring for get_args.
+        """Parse a list of strings into integers.
 
         Args:
-             av (list): TODO: descriptin for av
+            av: List of strings to convert.
 
-        Returns: TODO
+        Returns:
+            List of integers.
+
+        Raises:
+            CoordError: If an element cannot be converted to `int`.
         """
-        r_lst = []
+        r_lst: list[int] = []
         for arg in av:
             try:
                 r_lst += [int(arg)]
-            except (ValueError, TypeError) as ce:
-                raise CoordError(ce.args[0]) from ce
+            except (ValueError, TypeError) as exc:
+                raise CoordError(str(exc)) from exc
         return r_lst
 
     @classmethod
     def from_str(cls, coord: str) -> "Vec3":
-        """TODO: Docstring for from_str.
+        """Create a vector from a coordinate string `"x,y,z"`.
 
         Args:
-            coord (str): coordinates in form "x,y,z"
+            coord: Coordinates in the form `"x,y,z"`.
 
-        Returns: An instance of Vec3
+        Returns:
+            A `Vec3` instance.
 
+        Raises:
+            CoordError: If parsing/conversion fails or not enough components.
         """
         try:
-            lst = cls.parse_args([ele for ele in cls.ft_split(coord, ",")])
+            parts = cls.ft_split(coord, ",")
+            lst = cls.parse_args([ele for ele in parts])
             return cls(lst[0], lst[1], lst[2])
-        except CoordError as ce:
-            raise CoordError(ce.args[0]) from ce
+        except (IndexError, CoordError) as exc:
+            raise CoordError(str(exc)) from exc
 
 
 class Player:
-    """Player class."""
+    """Player holding a position in 3D space.
 
-    def __init__(self, start_pos: Vec3):
-        """TODO: to be defined."""
+    Args:
+        start_pos: Initial player position.
+    """
+
+    def __init__(self, start_pos: Vec3) -> None:
         self.pos = start_pos
 
     def __str__(self) -> str:
-        """Return a str represantation of a Player instance."""
+        """Demonstrate tuple-style unpacking with coordinates.
+
+        Returns:
+            A formatted multiline string.
+        """
         r_str = ""
         x, y, z = [3, 4, 0]
         r_str += "\nUnpacking Demonstation:"
@@ -208,27 +284,31 @@ class Player:
 
     @property
     def pos(self) -> Vec3:
-        """Pos."""
+        """Current position."""
         return self._pos
 
     @pos.setter
     def pos(self, value: Vec3) -> None:
-        """Pos."""
+        """Set current position."""
         self._pos = value
 
     def teleport(self, to: Vec3) -> None:
-        """Teleport to."""
+        """Teleport player to a new position.
+
+        Args:
+            to: Target position.
+        """
         self.pos = to
 
 
-def first_start() -> str:
-    """Primer function display output from e.g."""
+def first_start() -> None:
+    """Run the built-in demonstration from the module docstring."""
     start_pos = Vec3(10, 20, 5)
     r_str = f"\nPosition crerated: {start_pos}"
     origin = Vec3()
     r_str += f"\nDistance between {origin} and {start_pos}"
     r_str += f":{abs(origin - start_pos): .2f}\n"
-    str_coords = "3,4,-0"
+    str_coords = "3,4,0"
     r_str += f'\nParsing coordinates: "{str_coords}"'
     start_pos = new = Vec3.from_str(str_coords)
     r_str += f"\nParsed position: {new}"
@@ -239,65 +319,68 @@ def first_start() -> str:
     str_coords = "abc,def,ghi"
     print(f"Parsing invalid coordinates: {str_coords}")
     try:
-        new2 = Vec3.from_str(str_coords)
-        _ = new2
+        _ = Vec3.from_str(str_coords)
     except CoordError as ce:
         orig = ce.__cause__
-        print(f"Error parsing coordinates: {orig.args[0][0]}")
-        print(
-            f"Error details - Type: {orig.__class__.__name__}, "
-            f"Args: {orig.args[0]}"
-        )
-
+        if orig is None:
+            print(f"Error parsing coordinates: {ce}")
+            print(
+                f"Error details - Type: {ce.__class__.__name__}, "
+                f"Args: {ce.args}"
+            )
+        else:
+            print(f"Error parsing coordinates: {orig.args[0]}")
+            print(
+                f"Error details - Type: {orig.__class__.__name__}, "
+                f"Args: {orig.args}"
+            )
     finally:
         p = Player(origin)
         p.teleport(new)
         print(p)
-    return
 
 
 def get_args_i() -> tuple[int, list[int]]:
-    """Retrieve program argc and argv(restricted to int) and return.
+    """Parse CLI integer arguments.
 
-    NB: not including av[0] - program name str
-    Returns: argc as int and argv as list[int]
+    Skips `sys.argv[0]`. Each argument is stripped from common bracket/tuple
+    punctuation to support inputs like "(1,2,3)".
+
+    Returns:
+        A tuple of:
+            - argc: number of parsed integers
+            - argv: list of parsed integers
     """
     av = sys.argv
     r_lst: list[int] = []
     for a in av[1:]:
         try:
             r_lst.append(int(a.strip(",'][()")))
-        except CoordError as ve:
-            print(f"oops, I typed ’{a}’ instead of ’1000’ -- {ve}")
+        except (ValueError, TypeError) as exc:
+            print(f"oops, I typed ’{a}’ instead of ’1000’ -- {exc}")
     return (len(r_lst), r_lst)
 
 
-class CoordError(ValueError):
-    """Error class for coordinates."""
-
-    def __init__(self, *args: str):
-        """Initialise a coord error."""
-        super().__init__(args)
-
-
 def main() -> None:
-    """TODO: Docstring for main.
+    """Program entrypoint.
 
-    Returns: TODO
-
+    Behavior:
+        - If <= 1 integer is provided, run the demo.
+        - Otherwise, interpret integers by groups of 3 as `(x, y, z)` vectors.
     """
     ac, av = get_args_i()
     print("=== Game Coordinate System ===")
     if ac <= 1:
         first_start()
-    else:
-        print(f"Total arguments: {ac}")
-        i = 0
-        coord_list = []
-        while i < ac:
-            coord_list += [Vec3(av[i], av[i + 1], av[i + 2])]
-            i += 3
-        print(coord_list)
+        return
+
+    print(f"Total arguments: {ac}")
+    i = 0
+    coord_list: list[Vec3] = []
+    while i < ac:
+        coord_list += [Vec3(av[i], av[i + 1], av[i + 2])]
+        i += 3
+    print(coord_list)
 
 
 if __name__ == "__main__":

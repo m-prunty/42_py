@@ -7,7 +7,7 @@
 #    By: potz <maprunty@student.42.fr>             +#+  +:+       +#+         #
 #                                                +#+#+#+#+#+   +#+            #
 #    Created: 2026/01/23 02:29:57 by potz             #+#    #+#              #
-#    Updated: 2026/02/18 02:40:37 by maprunty        ###   ########.fr        #
+#    Updated: 2026/02/18 10:09:41 by maprunty        ###   ########.fr        #
 #                                                                             #
 # *************************************************************************** #
 """Exercise 0: Command Quest.
@@ -45,7 +45,7 @@ def main() -> None:
     ac, av = get_args()
     p_lst = "No arguments provided!\n" if ac == 1 else ""
     p_lst += f"Program name: {av[0]}\n"
-    p_lst += f"Arguments received: {ac - 1}\n"
+    p_lst += f"Arguments received: {ac - 1}\n" if ac > 1 else ""
     i = 1
     while i < ac:
         p_lst += f"Argument {i}: {av[i]}\n"
