@@ -7,9 +7,11 @@
 #    By: maprunty <maprunty@student.42heilbronn.d  +#+  +:+       +#+         #
 #                                                +#+#+#+#+#+   +#+            #
 #    Created: 2026/02/22 13:12:16 by maprunty         #+#    #+#              #
-#    Updated: 2026/02/22 14:06:18 by maprunty        ###   ########.fr        #
+#    Updated: 2026/02/22 14:14:55 by maprunty        ###   ########.fr        #
 #                                                                             #
 # *************************************************************************** #
+"""First look at imports and custom  packages."""
+
 import alchemy
 
 

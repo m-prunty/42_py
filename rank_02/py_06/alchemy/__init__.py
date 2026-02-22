@@ -7,9 +7,10 @@
 #    By: maprunty <maprunty@student.42heilbronn.d  +#+  +:+       +#+         #
 #                                                +#+#+#+#+#+   +#+            #
 #    Created: 2026/02/22 13:19:12 by maprunty         #+#    #+#              #
-#    Updated: 2026/02/22 13:19:26 by maprunty        ###   ########.fr        #
+#    Updated: 2026/02/22 14:14:02 by maprunty        ###   ########.fr        #
 #                                                                             #
 # *************************************************************************** #
+"""Init file to define package elements."""
 
 from .elements import create_fire, create_water
 
