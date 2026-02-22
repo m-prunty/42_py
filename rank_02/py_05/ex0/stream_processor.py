@@ -7,7 +7,7 @@
 #    By: maprunty <maprunty@student.42heilbronn.d  +#+  +:+       +#+         #
 #                                                +#+#+#+#+#+   +#+            #
 #    Created: 2026/02/20 21:07:52 by maprunty         #+#    #+#              #
-#    Updated: 2026/02/21 00:32:01 by maprunty        ###   ########.fr        #
+#    Updated: 2026/02/22 00:59:49 by maprunty        ###   ########.fr        #
 #                                                                             #
 # *************************************************************************** #
 from abc import ABC, abstractmethod
@@ -17,19 +17,23 @@ from typing import Any
 class DataProcessor(ABC):
     """TODO: Docstring."""
 
+    def init_s(self, init_str: str):
+        self.init_str = init_str
+
     @abstractmethod
     def process(self, data: Any) -> str:
         """Process the data and return result string."""
-        print(f"Processing data: {data}", end="")
-        self.data = data
+        self.init_str += f"Processing data: {data}\n"
 
     @abstractmethod
     def validate(self, data: Any) -> bool:
         """Validate if data is appropriate for this processor."""
-        print(f"\nValidation: {data} verified")
+        self.init_str += f"Validation: {data} verified\n"
 
     def format_output(self, result: str) -> str:
         """Format the output string."""
+        self.result = result
+        self.init_str += f"Output: {result}\n"
         return f"{result}"
 
 
@@ -42,15 +46,16 @@ class NumericProcessor(DataProcessor):
         Args:
             arg (type): Description.
         """
-        print("\nInitializing Numeric Processor...")
+        super().init_s("Initializing Numeric Processor...\n")
 
     def process(self, data: Any) -> str:
         """Process the data and return result string."""
         super().process(data)
+        self.validate(data)
         n = len(data)
         s = sum(data)
-        self.result = f"Processed {n} numeric values, sum={s}, avg={s / n}"
-        return data
+        result = f"Processed {n} numeric values, sum={s}, avg={s / n}"
+        return super().format_output(result)
 
     def validate(self, data: Any) -> bool:
         """Validate if data is appropriate for this processor."""
@@ -72,12 +77,16 @@ class TextProcessor(DataProcessor):
         Args:
             arg (type): Description.
         """
-        print("\nInitializing Text Processor...")
+        super().init_s("Initializing Text Processor...\n")
 
     def process(self, data: Any) -> str:
         """Process the data and return result string."""
         super().process(data)
-        return data
+        self.validate(data)
+        nwords = len(data.split(" "))
+        nchars = len(data)
+        result = f"Processed text: {nchars} characters, {nwords} words"
+        return super().format_output(result)
 
     def validate(self, data: Any) -> bool:
         """Validate if data is appropriate for this processor."""
@@ -94,24 +103,31 @@ class TextProcessor(DataProcessor):
 class LogProcessor(DataProcessor):
     """TODO: Docstring."""
 
+    log_levels = {"ERROR": "ALERT", "INFO": "INFO"}
+
     def __init__(self) -> None:
         """TODO: init summary for DataProcessor.
 
         Args:
             arg (type): Description.
         """
-        print("\nInitializing Numeric Processor...")
+        super().init_s("Initializing Numeric Processor...\n")
 
     def process(self, data: Any) -> str:
         """Process the data and return result string."""
         super().process(data)
-        return data
+        t_log, entry = data.split(":")
+        self.validate(t_log)
+        result = f"[{self.log_levels[t_log]}] {t_log} level detected:{entry}"
+        return super().format_output(result)
 
     def validate(self, data: Any) -> bool:
         """Validate if data is appropriate for this processor."""
         try:
-            super().validate("Log entry")
-            return True
+            if data in self.log_levels:
+                super().validate("Log entry")
+                return True
+            raise ValueError("Not a log entry")
         except ValueError as e:
             raise ProcException(e) from e
             return False
@@ -133,13 +149,20 @@ def processors_run(processor: DataProcessor, data: Any):
     try:
         p = processor()
         p.process(data)
-        p.validate(data)
-        return processor
+        return p
     except ProcException as e:
         print("\n", e)
 
 
+print("=== CODE NEXUS - DATA PROCESSOR FOUNDATION ===\n")
 processors = [NumericProcessor, TextProcessor, LogProcessor]
-datas = [[1, 2, 3], "Hello Nexus", "INFO: System ready"]
-p_data = [processors_run(processors[i], datas[i]) for i in range(3)]
-print(p_data[0].__dict__)
+set_1 = [[1, 2, 3, 4, 5], "Hello Nexus World", "ERROR: Connection timeout"]
+p_data = [processors_run(processors[i], set_1[i]) for i in range(3)]
+[print(p.init_str) for p in p_data]
+
+print("=== Polymorphic Processing Demo ===\n")
+set_2 = [[1, 2, 3], "Hello Nexus!", "INFO: System ready"]
+p_data = [processors_run(processors[i], set_2[i]) for i in range(3)]
+[print(f"Result {i + 1}: {p.result}") for i, p in enumerate(p_data)]
+# print(p_data[0].result)
+# print(p_data[0].__dict__)
