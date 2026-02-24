@@ -7,7 +7,7 @@
 #    By: maprunty <maprunty@student.42heilbronn.d  +#+  +:+       +#+         #
 #                                                +#+#+#+#+#+   +#+            #
 #    Created: 2026/02/23 05:35:28 by maprunty         #+#    #+#              #
-#    Updated: 2026/02/24 10:02:22 by maprunty        ###   ########.fr        #
+#    Updated: 2026/02/24 09:24:21 by maprunty        ###   ########.fr        #
 #                                                                             #
 # *************************************************************************** #
 """=== CODE NEXUS - ENTERPRISE PIPELINE SYSTEM ===
@@ -133,7 +133,6 @@ class NexusManager:
 
     def process_data(self, data: Any, adapt_type: str) -> None:
         result = []
-        adapter = self.adapters[adapt_type]
         for pipe in self.pipelines:
             result.append(pipe.process(data))
 
