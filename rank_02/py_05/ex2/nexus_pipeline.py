@@ -7,7 +7,7 @@
 #    By: maprunty <maprunty@student.42heilbronn.d  +#+  +:+       +#+         #
 #                                                +#+#+#+#+#+   +#+            #
 #    Created: 2026/02/23 05:35:28 by maprunty         #+#    #+#              #
-#    Updated: 2026/02/26 06:34:03 by maprunty        ###   ########.fr        #
+#    Updated: 2026/02/26 08:49:49 by maprunty        ###   ########.fr        #
 #                                                                             #
 # *************************************************************************** #
 """=== CODE NEXUS - ENTERPRISE PIPELINE SYSTEM ===
@@ -241,8 +241,10 @@ DATA = {
 }
 
 
-def get_pipeline_stages(adapt_type: str) -> ProcessingPipeline:
-    p = [PIPES[adapt_type.lower()].add_stage(s()) for s in STAGES]
+def get_pipeline_stages(
+    pipes: dict[str, ProcessingPipeline], adapt_type: str
+) -> ProcessingPipeline:
+    p = [pipes[adapt_type.lower()].add_stage(s()) for s in STAGES]
     return p
 
 
@@ -260,6 +262,11 @@ def disp_stages(pipe: ProcessingPipeline):
     return r_str
 
 
+def chain_demo() -> list[ProcessingPipeline]:
+    lst = ["Pipeline A", "Pipeline B", "Pipeline C"]
+    # r_plst =
+
+
 if __name__ == "__main__":
     nman = NexusManager()
     print("\nCreating Data Processing Pipeline...")
@@ -269,3 +276,4 @@ if __name__ == "__main__":
     print("=== Multi-Format Data Processing ===\n")
     nman.add_pipeline_batch(PIPES)
     nman.process_data(dct)
+    print("=== Pipeline Chaining Demo ===\n")
