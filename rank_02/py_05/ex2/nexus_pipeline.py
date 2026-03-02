@@ -7,7 +7,7 @@
 #    By: maprunty <maprunty@student.42heilbronn.d  +#+  +:+       +#+         #
 #                                                +#+#+#+#+#+   +#+            #
 #    Created: 2026/02/23 05:35:28 by maprunty         #+#    #+#              #
-#    Updated: 2026/02/26 08:49:49 by maprunty        ###   ########.fr        #
+#    Updated: 2026/02/27 22:08:11 by maprunty        ###   ########.fr        #
 #                                                                             #
 # *************************************************************************** #
 """=== CODE NEXUS - ENTERPRISE PIPELINE SYSTEM ===
@@ -66,28 +66,31 @@ class InputStage:
 
     def process(self, data: Any) -> dict:
         """Input validation and parsing"""
-        r_dct = data["data"]
-        print("Input:", end=" ")
-        if data["id"] == "Stream":
-            print("Real-time sensor stream")
-        else:
-            print(r_dct)
-        return r_dct
+        proc_str = '\n'
+        proc_str += "Input:"
+        proc_str += "Real-time sensor stream" if data["id"] == "Stream" else str(data["data"]) 
+        data["proc_str"] = proc_str
+        data["chain_strs"] = ["Raw"]
+        return data
 
 
 class TransformStage:
     """Transform:."""
 
     T_STRS = {
-        "JSON": "Enriched with metadata and validation",
-        "CSV": "Parsed and structured data",
-        "Stream": "Aggregated and filtered",
+        "json": "Enriched with metadata and validation",
+        "csv": "Parsed and structured data",
+        "stream": "Aggregated and filtered",
     }
 
     def process(self, data: Any) -> dict:
         """Data transformation and enrichment"""
         r_dct = data
-        print("Transform:", self.T_STRS[r_dct["id"]])
+        proc_str = '\n'
+        proc_str += "Transform: "
+        proc_str += self.T_STRS[r_dct["id"]]
+        data["proc_str"] += proc_str
+        data["chain_strs"] += ["Processed"]
         return r_dct
 
 
@@ -95,13 +98,13 @@ class OutputStage:
     """Output:."""
 
     O_STRS = {
-        "JSON": (
+        "json": (
             lambda dct: f"Processed temperature reading: {dct['value']}°{dct['unit']} (Normal range)"
         ),
-        "CSV": (
+        "csv": (
             lambda lst: f"User activity logged: {len(lst)} actions processed"
         ),
-        "Stream": lambda lst_dct: f"Stream summary: {len(lst_dct)} readings, avg: {sum(dct['value'] for dct in lst_dct) / len(lst_dct)}°C",
+        "stream": lambda lst_dct: f"Stream summary: {len(lst_dct)} readings, avg: {sum(dct['value'] for dct in lst_dct) / len(lst_dct)}°C",
     }
 
     def process(self, data: Any) -> str:
@@ -109,28 +112,41 @@ class OutputStage:
         r_dct = data
         # print(r_dct)
         d = r_dct["data"]
-        print("Output:", self.O_STRS[r_dct["id"]](d))
-        print()
+        proc_str = '\n'
+        proc_str += "Output:"
+        proc_str += self.O_STRS[r_dct["id"]](d)
+        data["proc_str"] += proc_str
+        data["chain_strs"] += ["Analysed"]
         return r_dct
 
 
 class ProcessingPipeline(ABC):
     """ProcessingPipe."""
+    PIPE_METRICS = {"chain": 0}
 
     def __init__(self) -> None:
         self.stages: list[ProcessingStage] = []
+        self.PIPE_METRICS[self.pipeline_id] = None
         self.r_str = (
             f"Processing {self.__doc__.split(' ')[0]} data through pipeline..."
         )
+        self.log_str = ""
 
     @abstractmethod
     def process(self, data: Any) -> Any:
         result = {}
         # print(data)
-        d = {"id": self.pipeline_id, "data": data}
-        result[self.pipeline_id] = {key: None for key in self.stages}
+        #self.log()
+        print(data)
+        if not "id"  in data.keys():
+            d = {"id": self.pipeline_id, "data": data}
+        # result[self.pipeline_id] = {key: None for key in self.stages}
         for s in self.stages:
-            result[self.pipeline_id][s] = s.process(d)
+            print("proc", s.process(d))
+            print("dct", d)
+            # result[self.pipeline_id][s] = s.process(d)
+            # print(result)
+        self.PIPE_METRICS[self.pipeline_id] = result
         return result
 
     def add_stage(self, stage: ProcessingStage) -> None:
@@ -138,9 +154,9 @@ class ProcessingPipeline(ABC):
 
     def log(self, name=__doc__):
         """Log string:."""
-        print(">", name, ">>", self.log.__doc__, ">>>", self.__doc__)
-        print(", ".join(s.__doc__ for s in self.stages))
-        print(self.pipeline_id, "id")
+        self.PIPE_METRICS["chain"] += 1 
+        self.log_str += f"> {name} >> {self.log.__doc__} >>>  {self.__doc__}"
+        self.log_str += f"{(' -> '.join(s.__doc__ for s in self.stages))}"
         return name
 
 
@@ -149,8 +165,8 @@ class JSONAdapter(ProcessingPipeline):
     """JSON Adapter."""
 
     def __init__(self, pipeline_id: str) -> None:
+        self.pipeline_id = pipeline_id.lower()
         super().__init__()
-        self.pipeline_id = pipeline_id
 
     def process(self, data: Any) -> Any:
         return super().process(data)
@@ -160,11 +176,11 @@ class CSVAdapter(ProcessingPipeline):
     """CSV Adapter."""
 
     def __init__(self, pipeline_id: str) -> None:
+        self.pipeline_id = pipeline_id.lower()
         super().__init__()
-        self.pipeline_id = pipeline_id
 
     def process(self, data: Any) -> Any:
-        data = {key: None for key in data.split("\n")}
+        data = {i: entry for i, entry in enumerate(data.split("\n"))}
         r = super().process(data)
         return r
 
@@ -173,8 +189,8 @@ class StreamAdapter(ProcessingPipeline):
     """Stream Adapter."""
 
     def __init__(self, pipeline_id: str) -> None:
+        self.pipeline_id = pipeline_id.lower()
         super().__init__()
-        self.pipeline_id = pipeline_id
 
     def process(self, data: Any) -> Any:
         # print("adpt", data)
@@ -193,24 +209,55 @@ class NexusManager:
         print(self.__doc__ + "\n")
         print("Initializing Nexus Manager...")
         self.pipelines: List[ProcessingPipeline] = []
-        self.metrics = {}
+        self.dct_pipelines: dict[str, ProcessingPipeline] = {}
         self.cap = 1000
         print(f"Pipeline capacity: {self.cap} streams/second")
 
-    def process_data(self, data: Any) -> None:
+    def analyse_res(self, result: dict[str, str]):
+        pass
+
+
+    def read_data(self):
+        for i, v in self.dct_pipelines.items():
+            print(i, v.keys())
+            print(v["result"].keys())
+                #print(self.dct_pipelines["result"].keys())
+                #print(self.dct_pipelines["result"]["JSON"].keys())
+        pass
+
+    def process_data(self, data: Any) -> dict[any, any]:
+        result = {}
+        #try:
         if isinstance(data, dict) and any(key in ADAPTERS for key in data):
-            result = {key: None for key in dct}
-            # print(result)
-            # print(">>>>>", self.pipelines[0].stages)
+            result = {key: None for key in data}
+            # print(data.items())
             for k, v in data.items():
-                result[k] = PIPES[k].process(v)
+                pipe = self.dct_pipelines[k]['adapter']
+                self.dct_pipelines[k]["result"] = pipe.process(v)[k]
+                self.dct_pipelines[k]["metrics"]= pipe.PIPE_METRICS
+        else:
+            result = {"ERROR:": "wrong shape"}
+            raise
+        #except Exception as e:
+        #    print(result, e)
         return result
 
-    # def process_batch(self, data: Any )
-    # print(result)
+    def process_chain(self, data: Any, key):
+        #for i in CHAIN_PIPES:
+        #    print(self.i)
+        a = {p.pipeline_id: p for p in self.pipelines if key in p.pipeline_id}
+        print(a)
+
+    def process_batch(self, data: Any ):
+        pass
 
     def add_pipeline(self, pipeline: ProcessingPipeline) -> None:
         self.pipelines.append(pipeline)
+        self.dct_pipelines[pipeline.pipeline_id.lower()] = {}
+        p_dct = self.dct_pipelines[pipeline.pipeline_id.lower()]
+        p_dct["adapter"] = pipeline
+        p_dct["result"] = None
+        p_dct["metrics"] = None
 
     def add_pipeline_batch(self, pdct: dict[str, ProcessingPipeline]) -> None:
         [self.add_pipeline(v) for k, v in pdct.items()]
@@ -239,18 +286,21 @@ DATA = {
         {"sensor": "temp", "value": 21.5, "unit": "C"},
     ],
 }
+CHAIN_PIPES = ["Pipeline A", "Pipeline B", "Pipeline C"]
 
 
-def get_pipeline_stages(
-    pipes: dict[str, ProcessingPipeline], adapt_type: str
-) -> ProcessingPipeline:
-    p = [pipes[adapt_type.lower()].add_stage(s()) for s in STAGES]
-    return p
+def get_pipeline_stages(pipes: dict[str, ProcessingPipeline]) -> ProcessingPipeline:
+    [pipes.add_stage(s()) for s in STAGES]
+    return pipes
 
 
-def get_pipes():
-    plst = [get_pipeline_stages(p) for p in PIPES]
-    return plst
+def get_pipes()-> dict[str, ProcessingPipeline]:
+    r_dct = {k:None for k in ADAPTERS}
+    tmp = None
+    for a in ADAPTERS:
+        r_dct[a] = ADAPTERS[a](a)
+        get_pipeline_stages(r_dct[a])
+    return r_dct 
 
 
 def disp_stages(pipe: ProcessingPipeline):
@@ -262,18 +312,26 @@ def disp_stages(pipe: ProcessingPipeline):
     return r_str
 
 
-def chain_demo() -> list[ProcessingPipeline]:
-    lst = ["Pipeline A", "Pipeline B", "Pipeline C"]
+def chain_demo() -> dict[str, ProcessingPipeline]:
+    r_dct = {k:None for k in CHAIN_PIPES}
+    for p in r_dct:
+        r_dct[p] = ADAPTERS["json"](p)
+        get_pipeline_stages(r_dct[p])
+    return r_dct
     # r_plst =
 
 
 if __name__ == "__main__":
     nman = NexusManager()
     print("\nCreating Data Processing Pipeline...")
-    get_pipes()
-    print(disp_stages(PIPES["json"]))
+    pipes = get_pipes()
+    print(disp_stages(pipes["json"]))
     dct = {**DATA}
     print("=== Multi-Format Data Processing ===\n")
-    nman.add_pipeline_batch(PIPES)
+    nman.add_pipeline_batch(pipes)
     nman.process_data(dct)
+    nman.read_data()
     print("=== Pipeline Chaining Demo ===\n")
+    nman.add_pipeline_batch(chain_demo())
+    nman.process_chain({"stream":dct["stream"]}, "PIPELINE")
+
