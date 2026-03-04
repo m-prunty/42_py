@@ -7,41 +7,10 @@
 #    By: maprunty <maprunty@student.42heilbronn.d  +#+  +:+       +#+         #
 #                                                +#+#+#+#+#+   +#+            #
 #    Created: 2026/02/23 05:35:28 by maprunty         #+#    #+#              #
-#    Updated: 2026/03/02 14:23:37 by maprunty        ###   ########.fr        #
+#    Updated: 2026/03/04 06:10:56 by maprunty        ###   ########.fr        #
 #                                                                             #
 # *************************************************************************** #
-"""=== CODE NEXUS - ENTERPRISE PIPELINE SYSTEM ===
-Initializing Nexus Manager...
-Pipeline capacity: 1000 streams/second
-Creating Data Processing Pipeline...
-Stage 1: Input validation and parsing
-Stage 2: Data transformation and enrichment
-Stage 3: Output formatting and delivery
-=== Multi-Format Data Processing ===
-Processing JSON data through pipeline...
-Input: {"sensor": "temp", "value": 23.5, "unit": "C"}
-Transform: Enriched with metadata and validation
-Output: Processed temperature reading: 23.5°C (Normal range)
-Processing CSV data through same pipeline...
-Input: "user,action,timestamp"
-Transform: Parsed and structured data
-Output: User activity logged: 1 actions processed
-Processing Stream data through same pipeline...
-Input: Real-time sensor stream
-Transform: Aggregated and filtered
-Output: Stream summary: 5 readings, avg: 22.1°C
-=== Pipeline Chaining Demo ===
-Pipeline A -> Pipeline B -> Pipeline C
-Data flow: Raw -> Processed -> Analyzed -> Stored
-Chain result: 100 records processed through 3-stage pipeline
-Performance: 95% efficiency, 0.2s total processing time
-=== Error Recovery Test ===
-Simulating pipeline failure...
-Error detected in Stage 2: Invalid data format
-Recovery initiated: Switching to backup processor
-Recovery successful: Pipeline restored, processing resumed
-Nexus Integration complete. All systems operational
-"""
+"""A system that combines multiple processing stages."""
 
 from abc import ABC, abstractmethod
 from typing import Any, Protocol
@@ -49,7 +18,7 @@ from typing import Any, Protocol
 
 # Stages
 class ProcessingStage(Protocol):
-    """Processing Stage"""
+    """Processing Stage."""
 
     def process(self, data: Any) -> Any: ...
 
@@ -65,7 +34,7 @@ class InputStage:
     """Input:."""
 
     def process(self, data: Any) -> dict:
-        """Input validation and parsing"""
+        """Input validation and parsing."""
         proc_str = "\n"
         proc_str += "Input: "
         if data["id"] == "stream":
@@ -93,7 +62,7 @@ class TransformStage:
     }
 
     def process(self, data: Any) -> dict:
-        """Data transformation and enrichment"""
+        """Data transformation and enrichment."""
         r_dct = data
         proc_str = "\n"
         proc_str += "Transform: "
@@ -109,19 +78,25 @@ class OutputStage:
 
     O_STRS = {
         "json": (
-            lambda dct: f"Processed temperature reading: {dct['value']}°{dct['unit']} (Normal range)"
+            lambda dct: f"Processed temperature reading:"
+            f"{dct['value']}°{dct['unit']} (Normal range)"
         ),
         "csv": (
             lambda lst: f"User activity logged: {len(lst)} actions processed"
         ),
-        "stream": lambda lst_dct: f"Stream summary: {len(lst_dct.keys())} readings, avg: {sum(val[1]['value'] for val in lst_dct.items()) / len(lst_dct.keys())} °C",
+        "stream": lambda lst_dct: f"Stream summary: "
+        f"{len(lst_dct.keys())}readings, "
+        f"""avg: {
+            sum(val[1]["value"] for val in lst_dct.items())
+            / len(lst_dct.keys())
+        } °C""",
         "pipeline a": lambda d: "",
         "pipeline b": lambda d: "",
         "pipeline c": lambda d: "",
     }
 
     def process(self, data: Any) -> str:
-        """Output formatting and delivery"""
+        """Output formatting and delivery."""
         r_dct = data
         d = r_dct["data"]
         proc_str = "\n"
@@ -149,7 +124,7 @@ class ProcessingPipeline(ABC):
     @abstractmethod
     def process(self, data: Any) -> Any:
         result = []
-        if "id" not in data.keys():
+        if "id" not in data:
             d = {"id": self.pipeline_id, "data": data, "count": 0}
         else:
             d = data
@@ -211,18 +186,18 @@ class StreamAdapter(ProcessingPipeline):
 
 # Manager
 class NexusManager:
-    """=== CODE NEXUS - ENTERPRISE PIPELINE SYSTEM ==="""
+    """=== CODE NEXUS - ENTERPRISE PIPELINE SYSTEM ===."""
 
     def __init__(self) -> None:
         print(self.__doc__ + "\n")
         print("Initializing Nexus Manager...")
-        self.pipelines: List[ProcessingPipeline] = []
+        self.pipelines: list[ProcessingPipeline] = []
         self.dct_pipelines: dict[str, ProcessingPipeline] = {}
         self.cap = 1000
         print(f"Pipeline capacity: {self.cap} streams/second")
 
     def read_data(self):
-        for i, v in self.dct_pipelines.items():
+        for v in self.dct_pipelines.values():
             print(v["result"]["proc_str"])
 
     def process_data(self, data: Any) -> dict[any, any]:
@@ -235,7 +210,6 @@ class NexusManager:
                     self.dct_pipelines[k]["result"] = pipe.process(v)
             else:
                 result = {"ERROR:": "wrong shape"}
-                raise
         except Exception as e:
             print(e)
         return result
@@ -312,7 +286,6 @@ def get_pipeline_stages(
 
 def get_pipes() -> dict[str, ProcessingPipeline]:
     r_dct = {k: None for k in ADAPTERS}
-    tmp = None
     for a in ADAPTERS:
         r_dct[a] = ADAPTERS[a](a)
         get_pipeline_stages(r_dct[a])
@@ -351,10 +324,12 @@ if __name__ == "__main__":
     nman.add_pipeline_batch(chain_demo())
     chain_res = nman.process_chain({"stream": dct["stream"] * 20}, "pipeline")
     print(
-        f"Chain result: {chain_res[0]} records processed through 3-stage pipeline"
+        f"Chain result: "
+        f"{chain_res[0]} records processed through 3-stage pipeline"
     )
     print(
-        f"Performance: 95% efficiency, {chain_res[1]:.2f}s total processing time"
+        f"Performance: "
+        f"95% efficiency, {chain_res[1]:.2f}s total processing time"
     )
 
     print()

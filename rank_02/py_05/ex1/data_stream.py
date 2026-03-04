@@ -7,9 +7,10 @@
 #    By: maprunty <maprunty@student.42heilbronn.d  +#+  +:+       +#+         #
 #                                                +#+#+#+#+#+   +#+            #
 #    Created: 2026/02/22 01:02:28 by maprunty         #+#    #+#              #
-#    Updated: 2026/02/24 03:43:09 by maprunty        ###   ########.fr        #
+#    Updated: 2026/03/04 06:01:56 by maprunty        ###   ########.fr        #
 #                                                                             #
 # *************************************************************************** #
+"""Data streaming system that demonstrates advanced polymorphic behavior."""
 
 from abc import ABC, abstractmethod
 from typing import Any
@@ -28,7 +29,7 @@ class DataStream(ABC):
 
     @abstractmethod
     def process_batch(self, data_batch: list[Any]) -> str:
-        """Process a batch of data"""
+        """Process a batch of data."""
         self.init_str += f"Processing {self.stype} batch: {data_batch}\n"
         self.init_str += (
             f"{self.stype.capitalize()} analysis: "
@@ -54,7 +55,7 @@ class DataStream(ABC):
             return [i for i in data_batch if i == criteria]
 
     def get_stats(self) -> dict[str, str | int | float]:
-        """Return stream statistics"""
+        """Return stream statistics."""
         return self.stats
 
 
@@ -69,7 +70,7 @@ class SensorStream(DataStream):
         super().init_s(stream_id)
 
     def process_batch(self, data_batch: list[Any]) -> str:
-        """Process a batch of data"""
+        """Process a batch of data."""
         sdct = {}
         n = len(data_batch)
         for d in data_batch:
@@ -98,7 +99,7 @@ class TransactionStream(DataStream):
         super().init_s(stream_id)
 
     def process_batch(self, data_batch: list[Any]) -> str:
-        """Process a batch of data"""
+        """Process a batch of data."""
         sdct = {}
         n = len(data_batch)
         for d in data_batch:
@@ -143,7 +144,7 @@ class EventStream(DataStream):
 
 class StreamProcessor:
     def __init__(self) -> None:
-        self.slist: List[DataStream] = list()
+        self.slist: list[DataStream] = list()
 
     def print_inits(self) -> None:
         print("=== CODE NEXUS - POLYMORPHIC STREAM SYSTEM ===\n")

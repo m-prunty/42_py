@@ -7,9 +7,11 @@
 #    By: maprunty <maprunty@student.42heilbronn.d  +#+  +:+       +#+         #
 #                                                +#+#+#+#+#+   +#+            #
 #    Created: 2026/02/20 21:07:52 by maprunty         #+#    #+#              #
-#    Updated: 2026/02/22 00:59:49 by maprunty        ###   ########.fr        #
+#    Updated: 2026/03/04 05:59:30 by maprunty        ###   ########.fr        #
 #                                                                             #
 # *************************************************************************** #
+"""Polymorphic data processing to demonstrate method overriding."""
+
 from abc import ABC, abstractmethod
 from typing import Any
 
@@ -91,7 +93,7 @@ class TextProcessor(DataProcessor):
     def validate(self, data: Any) -> bool:
         """Validate if data is appropriate for this processor."""
         try:
-            if type(data) == str:
+            if isinstance(data, str):
                 super().validate("Text data")
                 return True
             raise ValueError("Not a string")
@@ -146,6 +148,7 @@ class ProcException(Exception):
 
 
 def processors_run(processor: DataProcessor, data: Any):
+    """Instantiate and run processors."""
     try:
         p = processor()
         p.process(data)
@@ -164,5 +167,3 @@ print("=== Polymorphic Processing Demo ===\n")
 set_2 = [[1, 2, 3], "Hello Nexus!", "INFO: System ready"]
 p_data = [processors_run(processors[i], set_2[i]) for i in range(3)]
 [print(f"Result {i + 1}: {p.result}") for i, p in enumerate(p_data)]
-# print(p_data[0].result)
-# print(p_data[0].__dict__)
