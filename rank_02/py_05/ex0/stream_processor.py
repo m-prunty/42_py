@@ -7,7 +7,7 @@
 #    By: maprunty <maprunty@student.42heilbronn.d  +#+  +:+       +#+         #
 #                                                +#+#+#+#+#+   +#+            #
 #    Created: 2026/02/20 21:07:52 by maprunty         #+#    #+#              #
-#    Updated: 2026/03/04 05:59:30 by maprunty        ###   ########.fr        #
+#    Updated: 2026/03/04 09:24:04 by maprunty        ###   ########.fr        #
 #                                                                             #
 # *************************************************************************** #
 """Polymorphic data processing to demonstrate method overriding."""
@@ -20,6 +20,7 @@ class DataProcessor(ABC):
     """TODO: Docstring."""
 
     def init_s(self, init_str: str):
+        """Initialise processor type string."""
         self.init_str = init_str
 
     @abstractmethod

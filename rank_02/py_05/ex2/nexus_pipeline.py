@@ -7,7 +7,7 @@
 #    By: maprunty <maprunty@student.42heilbronn.d  +#+  +:+       +#+         #
 #                                                +#+#+#+#+#+   +#+            #
 #    Created: 2026/02/23 05:35:28 by maprunty         #+#    #+#              #
-#    Updated: 2026/03/04 06:10:56 by maprunty        ###   ########.fr        #
+#    Updated: 2026/03/04 09:50:49 by maprunty        ###   ########.fr        #
 #                                                                             #
 # *************************************************************************** #
 """A system that combines multiple processing stages."""
@@ -20,14 +20,9 @@ from typing import Any, Protocol
 class ProcessingStage(Protocol):
     """Processing Stage."""
 
-    def process(self, data: Any) -> Any: ...
-
-    def log(self, name=__doc__):
-        """Log string:."""
-        print(">>", self.log.__doc__)
-        print(">>>", self.__doc__)
-        print(">>>>", name)
-        return name
+    def process(self, data: Any) -> Any:
+        """Process input data and return result."""
+        ...
 
 
 class InputStage:
@@ -114,6 +109,7 @@ class ProcessingPipeline(ABC):
     PIPE_METRICS = {"chain": 0}
 
     def __init__(self) -> None:
+        """Initialise ABC for adapter class."""
         self.stages: list[ProcessingStage] = []
         self.PIPE_METRICS[self.pipeline_id] = None
         self.r_str = (
@@ -123,6 +119,7 @@ class ProcessingPipeline(ABC):
 
     @abstractmethod
     def process(self, data: Any) -> Any:
+        """Abstractmethod to process data."""
         result = []
         if "id" not in data:
             d = {"id": self.pipeline_id, "data": data, "count": 0}
@@ -134,6 +131,7 @@ class ProcessingPipeline(ABC):
         return result
 
     def add_stage(self, stage: ProcessingStage) -> None:
+        """Add stage to processing pipeline."""
         self.stages.append(stage)
 
     def log(self, name=__doc__):
@@ -149,11 +147,12 @@ class JSONAdapter(ProcessingPipeline):
     """JSON Adapter."""
 
     def __init__(self, pipeline_id: str) -> None:
+        """Initialise adapter class."""
         self.pipeline_id = pipeline_id.lower()
         super().__init__()
 
     def process(self, data: Any) -> Any:
-        # print("JSON", data)
+        """Abstractmethod overide to process data."""
         return super().process(data)
 
 
@@ -161,12 +160,13 @@ class CSVAdapter(ProcessingPipeline):
     """CSV Adapter."""
 
     def __init__(self, pipeline_id: str) -> None:
+        """Initialise adapter class."""
         self.pipeline_id = pipeline_id.lower()
         super().__init__()
 
     def process(self, data: Any) -> Any:
+        """Abstractmethod overide to process data."""
         data = {i: entry for i, entry in enumerate(data.split("\n"))}
-        # print("CSV", data)
         r = super().process(data)
         return r
 
@@ -175,10 +175,12 @@ class StreamAdapter(ProcessingPipeline):
     """Stream Adapter."""
 
     def __init__(self, pipeline_id: str) -> None:
+        """Initialise adapter class."""
         self.pipeline_id = pipeline_id.lower()
         super().__init__()
 
     def process(self, data: Any) -> Any:
+        """Abstractmethod overide to process data."""
         data = {i: entry for i, entry in enumerate(data)}
         result = super().process(data)
         return result
@@ -189,6 +191,7 @@ class NexusManager:
     """=== CODE NEXUS - ENTERPRISE PIPELINE SYSTEM ===."""
 
     def __init__(self) -> None:
+        """Initialise Manager class."""
         print(self.__doc__ + "\n")
         print("Initializing Nexus Manager...")
         self.pipelines: list[ProcessingPipeline] = []
@@ -197,10 +200,12 @@ class NexusManager:
         print(f"Pipeline capacity: {self.cap} streams/second")
 
     def read_data(self):
+        """Read info stored in proc_str after processing."""
         for v in self.dct_pipelines.values():
             print(v["result"]["proc_str"])
 
     def process_data(self, data: Any) -> dict[any, any]:
+        """Process data in pipelines."""
         result = {}
         try:
             if isinstance(data, dict) and any(key in ADAPTERS for key in data):
@@ -215,6 +220,7 @@ class NexusManager:
         return result
 
     def process_chain(self, data: Any, key):
+        """Process chain of pielines."""
         import time
 
         start = time.time()
@@ -241,6 +247,7 @@ class NexusManager:
         return (len(pipes[k]["result"]["data"]["stream"]), end - start)
 
     def add_pipeline(self, pipeline: ProcessingPipeline) -> None:
+        """Add pipeline to manager class."""
         self.pipelines.append(pipeline)
         self.dct_pipelines[pipeline.pipeline_id.lower()] = {}
         p_dct = self.dct_pipelines[pipeline.pipeline_id.lower()]
@@ -248,8 +255,8 @@ class NexusManager:
         p_dct["result"] = None
 
     def add_pipeline_batch(self, pdct: dict[str, ProcessingPipeline]) -> None:
+        """Add mulitple pipelines to manager class."""
         [self.add_pipeline(v) for k, v in pdct.items()]
-        # print(">>>>", self.pipelines)
 
 
 ADAPTERS = {
@@ -280,11 +287,13 @@ CHAIN_PIPES = ["Pipeline A", "Pipeline B", "Pipeline C"]
 def get_pipeline_stages(
     pipes: dict[str, ProcessingPipeline],
 ) -> ProcessingPipeline:
+    """Add stages to pipeline."""
     [pipes.add_stage(s()) for s in STAGES]
     return pipes
 
 
 def get_pipes() -> dict[str, ProcessingPipeline]:
+    """Get pipes from adapters and add stages."""
     r_dct = {k: None for k in ADAPTERS}
     for a in ADAPTERS:
         r_dct[a] = ADAPTERS[a](a)
@@ -293,6 +302,7 @@ def get_pipes() -> dict[str, ProcessingPipeline]:
 
 
 def disp_stages(pipe: ProcessingPipeline):
+    """Display stages from pipelines."""
     r_str = ""
     for i, p in enumerate(pipe.stages):
         r_str += f"Stage {i + 1}: "
@@ -302,6 +312,7 @@ def disp_stages(pipe: ProcessingPipeline):
 
 
 def chain_demo() -> dict[str, ProcessingPipeline]:
+    """BUildi function for pipeline chaining."""
     r_dct = {k: None for k in CHAIN_PIPES}
     for p in r_dct:
         r_dct[p] = ADAPTERS["json"](p)

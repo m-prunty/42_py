@@ -7,7 +7,7 @@
 #    By: maprunty <maprunty@student.42heilbronn.d  +#+  +:+       +#+         #
 #                                                +#+#+#+#+#+   +#+            #
 #    Created: 2026/02/22 01:02:28 by maprunty         #+#    #+#              #
-#    Updated: 2026/03/04 06:01:56 by maprunty        ###   ########.fr        #
+#    Updated: 2026/03/04 09:35:09 by maprunty        ###   ########.fr        #
 #                                                                             #
 # *************************************************************************** #
 """Data streaming system that demonstrates advanced polymorphic behavior."""
@@ -17,12 +17,13 @@ from typing import Any
 
 
 class DataStream(ABC):
-    """TODO: Docstring."""
+    """Data Stream handler."""
 
     stype = None
     dtype = None
 
     def init_s(self, stream_id: str) -> None:
+        """Initialise processor type string."""
         self.init_str = f"Initializing {self.stype.capitalize()} Stream...\n"
         self.init_str += f"Stream ID: {stream_id}, Type: {self.dtype}\n"
         self.stats = {"ops": "", "info": "", "filter": ""}
@@ -60,13 +61,13 @@ class DataStream(ABC):
 
 
 class SensorStream(DataStream):
-    """TODO: doc."""
+    """Sensor Stream handler."""
 
     stype = "sensor"
     dtype = "Environmental Data"
 
     def __init__(self, stream_id: str) -> None:
-        """TODO: doc."""
+        """Initialise class."""
         super().init_s(stream_id)
 
     def process_batch(self, data_batch: list[Any]) -> str:
@@ -89,7 +90,7 @@ class SensorStream(DataStream):
 
 
 class TransactionStream(DataStream):
-    """TODO: doc."""
+    """Transaction Stream handler."""
 
     stype = "transaction"
     dtype = "Financial Data"
@@ -122,17 +123,17 @@ class TransactionStream(DataStream):
 
 
 class EventStream(DataStream):
-    """TODO: doc."""
+    """Event Stream handler."""
 
     stype = "event"
     dtype = "System Events"
 
     def __init__(self, stream_id: str) -> None:
-        """TODO: doc."""
+        """Initialise."""
         super().init_s(stream_id)
 
     def process_batch(self, data_batch: list[Any]) -> str:
-        """Process a batch of data"""
+        """Process a batch of data."""
         n = len(data_batch)
         self.stats["filter"] = super().filter_data(data_batch, "error")
         nerr = len(self.stats["filter"]) if self.stats["filter"] else 0
@@ -143,14 +144,19 @@ class EventStream(DataStream):
 
 
 class StreamProcessor:
+    """=== CODE NEXUS - POLYMORPHIC STREAM SYSTEM ===."""
+
     def __init__(self) -> None:
+        """Initialise class."""
         self.slist: list[DataStream] = list()
 
     def print_inits(self) -> None:
-        print("=== CODE NEXUS - POLYMORPHIC STREAM SYSTEM ===\n")
+        """Print init_strs for all processors."""
+        print(self.__doc__[:-1], "\n")
         [print(f"{s.init_str}") for s in self.slist]
 
     def print_batch(self) -> str:
+        """Print results from batch processing streams."""
         print("=== Polymorphic Stream Processing ===")
         print("Processing mixed stream types through unified interface...")
         print("\nBatch 1 Results:")
@@ -175,6 +181,7 @@ class StreamProcessor:
         )
 
     def add_stream(self, stream_id: str, values: list) -> None:
+        """Add streams to slist."""
         if "SENSOR" in stream_id:
             self.slist.append(SensorStream(stream_id))
         elif "TRANS" in stream_id:
@@ -184,6 +191,7 @@ class StreamProcessor:
         self.slist[-1].process_batch(values)
 
     def process_dict(self, dct: dict) -> None:
+        """Process a dict of different streams."""
         for k, v in dct.items():
             self.add_stream(k, v)
 
