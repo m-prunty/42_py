@@ -6,13 +6,14 @@
 #                                                    +:+ +:+         +:+      #
 #    By: maprunty <maprunty@student.42heilbronn.d  +#+  +:+       +#+         #
 #                                                +#+#+#+#+#+   +#+            #
-#    Created: 2026/03/02 17:49:22 by maprunty         #+#    #+#              #
-#    Updated: 2026/03/02 20:35:50 by maprunty        ###   ########.fr        #
+#    Created: 2026/04/17 09:43:20 by maprunty         #+#    #+#              #
+#    Updated: 2026/04/18 19:50:45 by maprunty        ###   ########.fr        #
 #                                                                             #
 # *************************************************************************** #
+"""Package for creature factories."""
 
+from .base import Creature, CreatureFactory
+from .fire import FlameFactory
+from .water import AquaFactory
 
-from Card import Card
-from CreatureCard import CreatureCard
-
-__all__ = [Card, CreatureCard]
+__all__ = ["AquaFactory", "FlameFactory", "Creature", "CreatureFactory"]
