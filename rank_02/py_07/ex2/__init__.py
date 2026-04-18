@@ -6,19 +6,11 @@
 #                                                    +:+ +:+         +:+      #
 #    By: maprunty <maprunty@student.42heilbronn.d  +#+  +:+       +#+         #
 #                                                +#+#+#+#+#+   +#+            #
-#    Created: 2026/04/18 19:45:50 by maprunty         #+#    #+#              #
-#    Updated: 2026/04/18 21:56:13 by maprunty        ###   ########.fr        #
+#    Created: 2026/04/18 21:39:26 by maprunty         #+#    #+#              #
+#    Updated: 2026/04/18 22:28:40 by maprunty        ###   ########.fr        #
 #                                                                             #
 # *************************************************************************** #
 
+from .strategy import AggressiveStrategy, DefensiveStrategy, NormalStrategy
 
-from .capability import HealCapability, TransformCapability
-from .heal import HealingCreatureFactory
-from .transform import TransformCreatureFactory
-
-__all__ = [
-    "HealingCreatureFactory",
-    "TransformCreatureFactory",
-    "HealCapability",
-    "TransformCapability",
-]
+__all__ = ["AggressiveStrategy", "DefensiveStrategy", "NormalStrategy"]

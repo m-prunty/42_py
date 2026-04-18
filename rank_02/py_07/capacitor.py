@@ -7,7 +7,7 @@
 #    By: maprunty <maprunty@student.42heilbronn.d  +#+  +:+       +#+         #
 #                                                +#+#+#+#+#+   +#+            #
 #    Created: 2026/04/18 19:19:17 by maprunty         #+#    #+#              #
-#    Updated: 2026/04/18 20:33:13 by maprunty        ###   ########.fr        #
+#    Updated: 2026/04/18 21:07:27 by maprunty        ###   ########.fr        #
 #                                                                             #
 # *************************************************************************** #
 
@@ -15,7 +15,8 @@ from ex1 import HealingCreatureFactory, TransformCreatureFactory
 
 
 def test_heal_factory():
-    print("Testing Creature with healing capability:")
+    """Testing Creature with healing capability."""
+    print(test_heal_factory.__doc__[:-1])
     factory = HealingCreatureFactory()
     base = factory.create_base()
     evolved = factory.create_evolved()
@@ -32,7 +33,8 @@ def test_heal_factory():
 
 
 def test_transform_factory():
-    print("Testing Creature with transformation capability")
+    """Testing Creature with transform capability."""
+    print(test_transform_factory.__doc__[:-1])
     factory = TransformCreatureFactory()
     base = factory.create_base()
     evolved = factory.create_evolved()

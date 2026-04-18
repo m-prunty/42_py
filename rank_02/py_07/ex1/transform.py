@@ -7,7 +7,7 @@
 #    By: maprunty <maprunty@student.42heilbronn.d  +#+  +:+       +#+         #
 #                                                +#+#+#+#+#+   +#+            #
 #    Created: 2026/04/18 20:07:05 by maprunty         #+#    #+#              #
-#    Updated: 2026/04/18 20:56:11 by maprunty        ###   ########.fr        #
+#    Updated: 2026/04/18 21:09:05 by maprunty        ###   ########.fr        #
 #                                                                             #
 # *************************************************************************** #
 
@@ -25,7 +25,7 @@ class Shiftling(Creature, TransformCapability):
         if self.transformed:
             print(f"{super().attack()} performs a boosted strike!")
         else:
-            print(f"{super().attack()} attacks normally!")
+            print(f"{super().attack()} attacks normally.")
 
     def transform(self):
         print(f"{super().transform()} shifts into a sharper form!")
@@ -44,7 +44,7 @@ class Morphagon(Shiftling):
         if self.transformed:
             print(f"{Creature.attack(self)} unleashes a powerful attack!")
         else:
-            print(f"{Creature.attack(self)} attacks normally!")
+            print(f"{Creature.attack(self)} attacks normally.")
 
     def transform(self):
         print(
