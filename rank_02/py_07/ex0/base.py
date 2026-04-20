@@ -7,7 +7,7 @@
 #    By: maprunty <maprunty@student.42heilbronn.d  +#+  +:+       +#+         #
 #                                                +#+#+#+#+#+   +#+            #
 #    Created: 2026/04/18 18:36:47 by maprunty         #+#    #+#              #
-#    Updated: 2026/04/18 20:52:35 by maprunty        ###   ########.fr        #
+#    Updated: 2026/04/20 02:23:01 by maprunty        ###   ########.fr        #
 #                                                                             #
 # *************************************************************************** #
 """Module defining the base Creature class and CreatureFactory interface."""
@@ -31,7 +31,7 @@ class Creature(ABC):
 
     def describe(self):
         """Describe the creature."""
-        print(f"{self.name} is a {self.type} type Creature.")
+        print(f"{self.name} is a {self.type} type Creature")
 
 
 class CreatureFactory(ABC):

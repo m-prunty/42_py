@@ -7,9 +7,10 @@
 #    By: maprunty <maprunty@student.42heilbronn.d  +#+  +:+       +#+         #
 #                                                +#+#+#+#+#+   +#+            #
 #    Created: 2026/04/18 19:19:17 by maprunty         #+#    #+#              #
-#    Updated: 2026/04/18 21:07:27 by maprunty        ###   ########.fr        #
+#    Updated: 2026/04/20 02:41:54 by maprunty        ###   ########.fr        #
 #                                                                             #
 # *************************************************************************** #
+"""Testing creature factories for healing and transformation capabilities."""
 
 from ex1 import HealingCreatureFactory, TransformCreatureFactory
 
