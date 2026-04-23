@@ -7,7 +7,7 @@
 #    By: maprunty <maprunty@student.42heilbronn.d  +#+  +:+       +#+         #
 #                                                +#+#+#+#+#+   +#+            #
 #    Created: 2026/04/18 19:19:42 by maprunty         #+#    #+#              #
-#    Updated: 2026/04/20 02:29:14 by maprunty        ###   ########.fr        #
+#    Updated: 2026/04/22 11:54:58 by maprunty        ###   ########.fr        #
 #                                                                             #
 # *************************************************************************** #
 """Module defining capabilities for creatures."""
@@ -19,27 +19,25 @@ class HealCapability(ABC):
     """Abstract base class for healing capability."""
 
     @abstractmethod
-    def heal(self, target):
+    def heal(self, target: str) -> str:
         """Heal the target creature."""
-        return f"{self.name} heals {target} for a"
+        ...
 
 
 class TransformCapability(ABC):
     """Abstract base class for transformation capability."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize the transformation state."""
         super().__init__()
         self.transformed = False
 
     @abstractmethod
-    def transform(self):
+    def transform(self) -> str:
         """Transform the creature to boost its abilities."""
-        self.transformed = True
-        return f"{self.name}"
+        ...
 
     @abstractmethod
-    def revert(self):
+    def revert(self) -> str:
         """Revert the creature back to its normal form."""
-        self.transformed = False
-        return f"{self.name}"
+        ...
