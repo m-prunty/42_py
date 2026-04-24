@@ -1,0 +1,30 @@
+# *************************************************************************** #
+#                                                                             #
+#                                                        :::      ::::::::    #
+#    pyproject.toml                                    :+:      :+:    :+:    #
+#                                                    +:+ +:+         +:+      #
+#    By: maprunty <maprunty@student.42heilbronn.d  +#+  +:+       +#+         #
+#                                                +#+#+#+#+#+   +#+            #
+#    Created: 2026/04/24 09:18:31 by maprunty         #+#    #+#              #
+#    Updated: 2026/04/24 14:38:16 by maprunty        ###   ########.fr        #
+#                                                                             #
+# *************************************************************************** #
+
+[project]
+name = "The_Matrix"
+version = "0.1.0"
+description = "Welcome to the Real World of Data Engineering"
+authors = [{name = "maprunty", email = "maprunty@student.42heilbronn.de"}]
+requires-python = ">=3.10"
+
+dependencies = [
+"pandas (==2.1.0)",
+"numpy (==1.25.0)",
+"requests (==2.31.0)",
+"matplotlib (==3.7.2)",
+"pandas-stubs",
+"types-requests",
+]
+
+[tool.poetry]
+package-mode = false
