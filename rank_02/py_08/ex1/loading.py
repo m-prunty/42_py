@@ -7,7 +7,7 @@
 #    By: maprunty <maprunty@student.42heilbronn.d  +#+  +:+       +#+         #
 #                                                +#+#+#+#+#+   +#+            #
 #    Created: 2026/04/24 08:06:36 by maprunty         #+#    #+#              #
-#    Updated: 2026/04/24 14:11:21 by maprunty        ###   ########.fr        #
+#    Updated: 2026/04/25 11:44:47 by maprunty        ###   ########.fr        #
 #                                                                             #
 # *************************************************************************** #
 """This program loads the weather forecast data and visualizes it."""
@@ -15,10 +15,11 @@
 import importlib
 import sys
 
-import matplotlib.pyplot as plt  # type: ignore
-import numpy as np
-import pandas as pd
-import requests
+try:
+    import pandas as pd
+except ImportError:
+    print("\033[0;31m[FAIL]\033[0m Missing critical dependency: pandas")
+    sys.exit(1)
 
 RED = "\033[0;31m"
 GREEN = "\033[0;32m"
@@ -40,48 +41,97 @@ def check_dependency(mod: tuple[str, str]) -> bool:
         return False
 
 
-def dependencies() -> None:
+def dependencies() -> bool:
     """Check all required dependencies and print their status."""
-    print("\nChecking dependencies:")
+    print("Checking dependencies:")
     dependencies = [
         ("pandas", "Data manipulation"),
         ("numpy", "Numerical computations"),
-        ("requests", "Newtork access"),
         ("matplotlib", "Visualization"),
+    ]
+    optional = [
+        ("requests", "Newtork access"),
     ]
     all_ok = True
     for mod in dependencies:
         if not check_dependency(mod):
             all_ok = False
+    opt_ok = True
+    for mod in optional:
+        if not check_dependency(mod):
+            opt_ok = False
     if not all_ok:
         raise Exception
+    return opt_ok
 
 
-def get_data() -> pd.DataFrame:
-    """Fetch weather forecast data and return it as a DataFrame."""
-    print(f"\n{PURPLE}LOADING STATUS:{END} Fetching data...")
-    url = (
-        "https://api.open-meteo.com/v1/forecast?"
-        + "latitude=49.1427&longitude=9.2109&past_days=41"
-        + "&hourly=temperature_2m,relative_humidity_2m,wind_speed_10m,"
-        + "precipitation_probability,rain&forecast_days=10"
+def gen_data(n_samples: int = 1000) -> pd.DataFrame:
+    """Generate synthetic weather forecast data for testing."""
+    import numpy as np
+
+    np.random.seed(42)
+    start_date = pd.Timestamp("2026-03-15T00:00")
+    timestamps = pd.date_range(start=start_date, periods=n_samples, freq="h")
+    data = {
+        "hourly.time": timestamps.strftime("%Y-%m-%dT%H:%M").values,
+        "hourly.temperature": np.sin(np.linspace(0, 4 * np.pi, n_samples))
+        * 5.6
+        + 10.2
+        + np.random.normal(0, 0.8, n_samples),
+        "hourly.humidity": np.cos(np.linspace(0, 4 * np.pi, n_samples)) * 7
+        + 85
+        + np.random.normal(0, 1.2, n_samples),
+        "hourly.wind_speed": np.abs(np.random.normal(8.5, 1.8, n_samples)),
+        "hourly.precipitation_probability": np.clip(
+            np.random.exponential(3, n_samples), 0, 24
+        ),
+        "hourly.rain": np.abs(np.random.exponential(0.2, n_samples)),
+    }
+
+    df = pd.DataFrame(data)
+    df["hourly.temperature"] = np.clip(df["hourly.temperature"], 4.0, 16.5)
+    df["hourly.humidity"] = np.clip(df["hourly.humidity"], 75, 92)
+    df["hourly.wind_speed"] = np.clip(df["hourly.wind_speed"], 5.0, 12.0)
+    df["hourly.precipitation_probability"] = np.clip(
+        df["hourly.precipitation_probability"], 0, 25
     )
+    df["hourly.rain"] = np.clip(df["hourly.rain"], 0.0, 1.3)
+    return df
+
+
+def from_url(url: str) -> pd.DataFrame | None:
+    """Fetch and return weather forecast data from the given URL."""
+    import numpy as np
+    import pandas as pd
+    import requests
+
     try:
         response = requests.get(url, verify=True)
         df = pd.json_normalize(response.json())
         hourly_cols = [c for c in df.columns if c.startswith("hourly.")]
         arrays = {col: np.asarray(df.iloc[0][col]) for col in hourly_cols}
         out = {col: arrays[col] for col in hourly_cols}
-        print("Analyzing Matrix data...")
         return pd.DataFrame(out)
-
     except requests.RequestException as e:
-        print(f"{RED}[ERROR]{END} Failed to fetch data: {e}")
-        raise
+        print(f"\n{RED}[ERROR]{END} Failed to fetch data: {e}")
+        return None
+
+
+def get_data(url: str) -> pd.DataFrame:
+    """Fetch weather forecast data and return it as a DataFrame."""
+    df = None
+    if url:
+        df = from_url(url)
+    if df is None:
+        print(f"{RED}[ERROR]{END} Generating synthetic data instead.")
+        df = gen_data()
+    print("\nAnalyzing Matrix data...")
+    return df
 
 
 def plot_weather_forecast(df: pd.DataFrame, file: str) -> None:
     """Plot the weather forecast data with a dark theme and multiple axes."""
+    import matplotlib.pyplot as plt  # type: ignore
 
     def find_col(keyword: str) -> str | None:
         for col in df.columns:
@@ -89,7 +139,7 @@ def plot_weather_forecast(df: pd.DataFrame, file: str) -> None:
                 return col
         return None
 
-    print("Generating visualization...")
+    print("Generating visualization...", end="\n\n")
     time_col = find_col("time")
     temp_col = find_col("temperature")
     hum_col = find_col("humidity")
@@ -108,7 +158,7 @@ def plot_weather_forecast(df: pd.DataFrame, file: str) -> None:
     fig.set_facecolor("xkcd:grey")
 
     ax1.plot(df.index, df[temp_col], label="Temperature (°C)", color="tab:red")
-    ax1.set_ylabel("Temperature (°C)")
+    ax1.set_ylabel("Temperature (°C)", size="xx-large")
     ax1.plot(
         df.index,
         df[wind_col],
@@ -138,21 +188,40 @@ def plot_weather_forecast(df: pd.DataFrame, file: str) -> None:
         label="Rain (mm)",
         color="tab:blue",
     )
-    ax2.set_ylabel("Humidity / Precip / Rain")
+    ax2.set_ylabel("Humidity / Precip / Rain", size="xx-large")
 
     lines, labels = ax1.get_legend_handles_labels()
     lines2, labels2 = ax2.get_legend_handles_labels()
-    ax1.legend(lines + lines2, labels + labels2)
+    ax1.legend(
+        lines + lines2, labels + labels2, fontsize="xx-large", loc="upper left"
+    )
 
-    plt.title("Weather Forecast (Hourly)")
+    plt.title("Weather Forecast (Hourly)", fontsize="xx-large")
+    print("Analysis complete!")
     plt.savefig(file)
+    print(f"Results saved to: {file}")
 
 
 def main() -> None:
     """Load and run the visualization process."""
-    print(f"\n{PURPLE}LOADING STATUS:{END} Loading programs...\n")
+    print(f"\n{PURPLE}LOADING STATUS:{END} Loading programs...", end="\n\n")
+    if len(sys.argv) == 2 and sys.argv[1] == "default":
+        url = ""
+    else:
+        url = (
+            "https://api.open-meteo.com/v1/forecast?"
+            + "latitude=49.1427&longitude=9.2109&past_days=41"
+            + "&hourly=temperature_2m,relative_humidity_2m,wind_speed_10m,"
+            + "precipitation_probability,rain&forecast_days=10"
+        )
     try:
-        dependencies()
+        opt = dependencies()
+        if not opt:
+            print(
+                f"{LIGHT_BLUE}[INFO]{END} Optional dependencies are missing."
+                + " Some features may be unavailable."
+            )
+            url = ""
     except Exception:
         print(
             f"\n{RED}[ERROR]{END}:"
@@ -160,14 +229,13 @@ def main() -> None:
         )
         sys.exit(1)
     try:
-        data = get_data()
+        data = get_data(url)
     except Exception as e:
-        print(f"{RED}[ERROR]{END} Could not load data: {e}")
+        print(f"\n{RED}[ERROR]{END} Could not load data: {e}")
         sys.exit(1)
     print(f"Processing {len(data)} data points...")
     file = "matrix_analysis.png"
     plot_weather_forecast(data, file)
-    print(f"Results saved to: {file}")
 
 
 if __name__ == "__main__":
