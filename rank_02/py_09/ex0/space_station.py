@@ -7,7 +7,7 @@
 #    By: maprunty <maprunty@student.42heilbronn.d  +#+  +:+       +#+         #
 #                                                +#+#+#+#+#+   +#+            #
 #    Created: 2026/04/25 12:22:19 by maprunty         #+#    #+#              #
-#    Updated: 2026/04/27 15:31:46 by maprunty        ###   ########.fr        #
+#    Updated: 2026/04/27 15:47:58 by maprunty        ###   ########.fr        #
 #                                                                             #
 # *************************************************************************** #
 """A module for modeling and validating space station data using Pydantic."""
@@ -109,8 +109,8 @@ def csv_load() -> list[dict[str, Any]]:
 
 
 def main() -> None:
-    """Run space station data validation."""
-    print("Space Station Data Validation")
+    """Run Space Station Data Validation."""
+    print(f"{(main.__doc__[4:-1] if main.__doc__ else ' ')}")
     try:
         if len(sys.argv) > 1:
             mode = sys.argv[1].lower()
