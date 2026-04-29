@@ -7,10 +7,10 @@
 #    By: maprunty <maprunty@student.42heilbronn.d  +#+  +:+       +#+         #
 #                                                +#+#+#+#+#+   +#+            #
 #    Created: 2026/04/27 04:28:21 by maprunty         #+#    #+#              #
-#    Updated: 2026/04/27 07:04:55 by maprunty        ###   ########.fr        #
+#    Updated: 2026/04/27 20:27:45 by maprunty        ###   ########.fr        #
 #                                                                             #
 # *************************************************************************** #
-"""Lambda Spells: A Magical Data Manipulation Exercise"""
+"""Lambda Spells: A Magical Data Manipulation Exercise."""
 
 from typing import TypedDict, cast
 
@@ -57,28 +57,29 @@ def mage_stats(mages: list[Mage]) -> dict[str, float | Mage]:
     }
 
 
-artifacts = cast(
-    list[Artifact],
-    [
-        {"name": "Earth Shield", "power": 68, "type": "weapon"},
-        {"name": "Shadow Blade", "power": 115, "type": "relic"},
-        {"name": "Storm Crown", "power": 96, "type": "weapon"},
-        {"name": "Wind Cloak", "power": 86, "type": "focus"},
-    ],
-)
-mages = cast(
-    list[Mage],
-    [
-        {"name": "Casey", "power": 84, "element": "fire"},
-        {"name": "Luna", "power": 56, "element": "wind"},
-        {"name": "Ash", "power": 65, "element": "water"},
-        {"name": "Nova", "power": 96, "element": "light"},
-        {"name": "Casey", "power": 84, "element": "earth"},
-    ],
-)
-spells = ["lightning", "flash", "meteor", "blizzard"]
+if __name__ == "__main__":
+    artifacts = cast(
+        list[Artifact],
+        [
+            {"name": "Earth Shield", "power": 68, "type": "weapon"},
+            {"name": "Shadow Blade", "power": 115, "type": "relic"},
+            {"name": "Storm Crown", "power": 96, "type": "weapon"},
+            {"name": "Wind Cloak", "power": 86, "type": "focus"},
+        ],
+    )
+    mages = cast(
+        list[Mage],
+        [
+            {"name": "Casey", "power": 84, "element": "fire"},
+            {"name": "Luna", "power": 56, "element": "wind"},
+            {"name": "Ash", "power": 65, "element": "water"},
+            {"name": "Nova", "power": 96, "element": "light"},
+            {"name": "Casey", "power": 84, "element": "earth"},
+        ],
+    )
+    spells = ["lightning", "flash", "meteor", "blizzard"]
 
-print(artifact_sorter(artifacts))
-print(power_filter(mages, 85))
-print(spell_transformer(spells))
-print(mage_stats(mages))
+    print(artifact_sorter(artifacts))
+    print(power_filter(mages, 85))
+    print(spell_transformer(spells))
+    print(mage_stats(mages))

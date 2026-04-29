@@ -7,23 +7,35 @@
 #    By: maprunty <maprunty@student.42heilbronn.d  +#+  +:+       +#+         #
 #                                                +#+#+#+#+#+   +#+            #
 #    Created: 2026/04/27 07:05:38 by maprunty         #+#    #+#              #
-#    Updated: 2026/04/27 07:42:34 by maprunty        ###   ########.fr        #
+#    Updated: 2026/04/29 05:16:09 by maprunty        ###   ########.fr        #
 #                                                                             #
 # *************************************************************************** #
 """Higher Magic: A Functional Programming Exercise."""
 
 from collections.abc import Callable
 
-
-def spell_combiner(spell1: Callable, spell2: Callable) -> Callable:
-    return lambda target, power: (spell1(target, power), spell2(target, power))
+Spell = Callable[[str, int], str]
 
 
-def power_amplifier(base_spell: Callable, multiplier: int) -> Callable:
-    return lambda target, power: base_spell(target, power * multiplier)
+def spell_combiner(spell1: Spell, spell2: Spell) -> Spell:
+    """Combine two spells into one that casts both."""
+    return (
+        lambda target,
+        power: f"{spell1(target, power)} {spell2(target, power)}"
+    )
 
 
-def conditional_caster(condition: Callable, spell: Callable) -> Callable:
+def power_amplifier(base_spell: Spell, multiplier: int) -> Spell:
+    """Amplify the power of a spell by a given multiplier."""
+    return (
+        lambda target, power: f"Mega {base_spell(target, power * multiplier)}"
+    )
+
+
+def conditional_caster(
+    condition: Callable[[str], bool], spell: Spell
+) -> Spell:
+    """Cast a spell only if a certain condition is met."""
     return (
         lambda target, power: spell(target, power)
         if condition(target)
@@ -31,26 +43,30 @@ def conditional_caster(condition: Callable, spell: Callable) -> Callable:
     )
 
 
-def spell_sequence(spells: list[Callable]) -> Callable:
+def spell_sequence(spells: list[Spell]) -> Callable[[str, int], list[str]]:
+    """Create a spell that casts a sequence of spells in order."""
     return lambda target, power: [spell(target, power) for spell in spells]
 
 
 def heal(target: str, power: int) -> str:
+    """Healing spell."""
     return f"Heal restores {target} for {power} HP"
 
 
 def fireball(target: str, power: int) -> str:
+    """Fireball spell."""
     return f"Fireball hits {target} for {power} damage"
 
 
-combined_spell = spell_combiner(heal, fireball)
-mega_fireball = power_amplifier(fireball, 3)
-conditional_heal = conditional_caster(lambda target: target == "Ally", heal)
-spell_routine = spell_sequence([heal, fireball, mega_fireball])
-
 if __name__ == "__main__":
-    print(combined_spell("Ally", 50))
-    print(mega_fireball("Enemy", 30))
+    combined_spell = spell_combiner(heal, fireball)
+    mega_fireball = power_amplifier(fireball, 3)
+    conditional_heal = conditional_caster(
+        lambda target: target == "Ally", heal
+    )
+    spell_routine = spell_sequence([heal, fireball, mega_fireball])
+    print(combined_spell("Dragon", 50))
+    print(mega_fireball("Goblin", 30))
     print(conditional_heal("Ally", 40))
-    print(conditional_heal("Enemy", 40))
+    print(conditional_heal("Goblin", 40))
     print(spell_routine("Ally", 20))

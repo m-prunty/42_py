@@ -7,15 +7,17 @@
 #    By: maprunty <maprunty@student.42heilbronn.d  +#+  +:+       +#+         #
 #                                                +#+#+#+#+#+   +#+            #
 #    Created: 2026/04/27 07:52:02 by maprunty         #+#    #+#              #
-#    Updated: 2026/04/27 09:26:33 by maprunty        ###   ########.fr        #
+#    Updated: 2026/04/27 20:32:27 by maprunty        ###   ########.fr        #
 #                                                                             #
 # *************************************************************************** #
+"""Scope Mysteries: A Closure and Scope Exercise."""
 
 from collections.abc import Callable
 from typing import Any
 
 
 def mage_counter() -> Callable[[], int]:
+    """Create a counter that counts the number of times it has been called."""
     count = 0
 
     def increment() -> int:
@@ -27,6 +29,8 @@ def mage_counter() -> Callable[[], int]:
 
 
 def spell_accumulator(initial_power: int) -> Callable[[int], int]:
+    """Create an accumulator to add the initial power and returns the total."""
+
     def accumulate(add: int) -> int:
         nonlocal initial_power
         initial_power += add
@@ -38,6 +42,8 @@ def spell_accumulator(initial_power: int) -> Callable[[int], int]:
 def enchantment_factory(
     enchantment_type: str,
 ) -> Callable[[str], Callable[[], str]]:
+    """Produce enchantment functions based on the given type."""
+
     def enchant(item: str) -> Callable[[], str]:
         return lambda: f"{enchantment_type} {item}"
 
@@ -45,6 +51,7 @@ def enchantment_factory(
 
 
 def memory_vault() -> dict[str, Any]:
+    """Create a vault to store and retrieve callable memories."""
     vault: dict[str, Callable[[Any], Any]] = {}
 
     def store(key: str, value: Callable[[Any | None], Any]) -> None:

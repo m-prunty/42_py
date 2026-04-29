@@ -7,22 +7,26 @@
 #    By: maprunty <maprunty@student.42heilbronn.d  +#+  +:+       +#+         #
 #                                                +#+#+#+#+#+   +#+            #
 #    Created: 2026/04/27 11:08:41 by maprunty         #+#    #+#              #
-#    Updated: 2026/04/27 11:38:56 by maprunty        ###   ########.fr        #
+#    Updated: 2026/04/29 05:12:28 by maprunty        ###   ########.fr        #
 #                                                                             #
 # *************************************************************************** #
+"""Decorator Mastery: A Decorator Exercise."""
 
+import time
 from collections.abc import Callable
 from functools import wraps
 from typing import Any
 
+Spell = Callable[[str, int], str]
 
-def spell_timer(func: Callable) -> Callable:
-    import time
+
+def spell_timer(func: Spell) -> Spell:
+    """Measure the time taken to cast a spell."""
 
     @wraps(func)
-    def wrapper(*args, **kwargs):
+    def wrapper(target: str, power: int) -> str:
         start_time = time.time()
-        result = func(*args, **kwargs)
+        result = func(target, power)
         end_time = time.time()
         print(f"Spell cast in {end_time - start_time:.2f} seconds")
         return result
@@ -30,12 +34,14 @@ def spell_timer(func: Callable) -> Callable:
     return wrapper
 
 
-def power_validator(min_power: int) -> Callable:
-    def decorator(func: Callable) -> Callable:
+def power_validator(min_power: int) -> Callable[[Spell], Spell]:
+    """Validate that the spell's power meets a minimum requirement."""
+
+    def decorator(func: Spell) -> Spell:
         @wraps(func)
-        def wrapper(power: int, *args: Any, **kwargs: Any) -> Any:
+        def wrapper(target: str, power: int) -> Any:
             if power >= min_power:
-                return func(power, *args, **kwargs)
+                return func(target, power)
             else:
                 return "Insufficient power for this spell"
 
@@ -44,14 +50,16 @@ def power_validator(min_power: int) -> Callable:
     return decorator
 
 
-def retry_spell(max_attempts: int) -> Callable[[Callable], Callable]:
-    def decorator(func: Callable) -> Callable:
+def retry_spell(max_attempts: int) -> Callable[[Spell], Spell]:
+    """Retry a spell a specified number of times if it fails."""
+
+    def decorator(func: Spell) -> Spell:
         @wraps(func)
-        def wrapper(*args, **kwargs):
+        def wrapper(target: str, power: int) -> str:
             attempts = 0
             while attempts < max_attempts:
                 try:
-                    return func(*args, **kwargs)
+                    return func(target, power)
                 except Exception:
                     attempts += 1
                     print(
@@ -65,44 +73,61 @@ def retry_spell(max_attempts: int) -> Callable[[Callable], Callable]:
     return decorator
 
 
+"""
+MageGuild class - Demonstrate staticmethod:
+• validate_mage_name(name) - Static method that checks if name is valid
+• Name is valid if it’s at least 3 characters and contains only letters/spaces
+• cast_spell(self, spell_name, power) - Instance method
+• Should use the power_validator decorator with min_power=10
+• When power is valid, return "Successfully cast spell_name with <power> power"
+• Otherwise return "Insufficient power for this spell"
+"""
+
+
 class MageGuild:
+    """A guild of mages with spell casting capabilities."""
+
     @staticmethod
     def validate_mage_name(name: str) -> bool:
+        """Check if the mage's name is valid."""
         return len(name) >= 3 and all(c.isalpha() or c.isspace() for c in name)
 
     def cast_spell(self, spell_name: str, power: int) -> str:
+        """Cast a spell with the given name and power."""
+
         @power_validator(10)
-        def cast(power: int) -> str:
+        def cast(target: str, power: int) -> str:
             return f"Successfully cast {spell_name} with {power} power"
 
-        return cast(power)
+        return cast(spell_name, power)
 
 
 if __name__ == "__main__":
 
     @spell_timer
-    def fireball(power: int) -> str:
-        import time
-
+    def heal(target: str, power: int) -> str:
+        """Healing spell."""
         time.sleep(1)
-        return f"Fireball cast with power {power}!"
+        return f"Heal restores {target} for {power} HP"
 
     @power_validator(50)
-    def lightning_bolt(power: int) -> str:
-        return f"Lightning Bolt cast with power {power}!"
+    def fireball(target: str, power: int) -> str:
+        """Fireball spell."""
+        return f"Fireball hits {target} for {power} damage"
 
     @retry_spell(3)
-    def unstable_spell() -> str:
+    def lightning_bolt(target: str, power: int) -> str:
+        """Simulate casting a unstable lightning bolt spell."""
         import random
 
         if random.random() < 0.7:
             raise Exception("Spell failed!")
-        return "Unstable Spell cast successfully!"
+        return f"Lightning Bolt cast with power {power}!"
 
-    print(fireball(100))
-    print(lightning_bolt(30))
-    print(lightning_bolt(60))
-    print(unstable_spell())
+    print(heal("ally", 100))
+    print(fireball("Dragon", 30))
+    print(fireball("Goblin", 60))
+    print(lightning_bolt("Goblin", 40))
 
     mage_guild = MageGuild()
     print(mage_guild.cast_spell("Fireball", 100))
