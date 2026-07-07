@@ -1,0 +1,536 @@
+*This project has been created as part of the 42 curriculum by sdeppe, maprunty
+
+# A-Maze-ing
+
+## Description
+
+A-Maze-ing is a maze generation and visualization project that creates perfect and imperfect mazes using various graph-based algorithms. The project generates mazes of configurable dimensions, embeds ASCII art within the maze structure, and provides an interactive GUI to visualize maze generation and pathfinding algorithms in real-time.
+
+### Goal
+
+The primary goal of A-Maze-ing is to implement multiple maze generation and pathfinding algorithms, provide a configurable framework for comparing their performance and visual output, and deliver an engaging interactive visualization system using modern graphics libraries.
+
+### Key Features
+
+- **Multiple Maze Generation Algorithms**: DFS, Prim's Algorithm, Sidewinder, Wilson's Algorithm
+- **Pathfinding**: Dijkstra's algorithm for finding optimal paths through generated mazes
+- **Perfect & Imperfect Mazes**: Toggle between mazes with exactly one solution and mazes with multiple solutions
+- **ASCII Art Embedding**: Embed 42 school logo or custom ASCII art within maze structure
+- **Configurable Parameters**: Customize maze dimensions, entry/exit points, color schemes, output formats
+- **Interactive GUI**: Real-time visualization of maze generation and pathfinding processes
+- **File I/O**: Save and load mazes to/from files with complete reconstruction capability
+
+## Instructions
+
+### Installation
+
+1. **Clone the repository**:
+   ```bash
+   git clone <repository_url>
+   cd amazing
+   ```
+
+2. **Install dependencies** (using uv package manager):
+   ```bash
+   make build-mazegen  # Build the mazegen library wheel
+   make install
+   ```
+   
+   This will install all project dependencies including:
+   - `common`: Common utilities and grid tools
+   - `graphics`: Graphics rendering engine using MLX
+   - `mazegen`: Maze generation algorithms
+   - `mlx`: Graphics library bindings (includes prebuilt wheel)
+
+3. **Enter virtual environment** (if needed):
+   ```bash
+   source .venv/bin/activate
+   ```
+
+### Compilation & Execution
+
+**Run the application**:
+```bash
+make run
+```
+
+Or directly:
+```bash
+python3 a_maze_ing.py [config.txt]
+```
+
+The application will:
+1. Display a start screen with options
+2. Allow configuration of maze parameters through the options menu
+3. Generate maze on demand using the "Start" button
+4. Display the generated maze with generation visualization
+5. Show pathfinding animation when spacebar is pressed
+
+**Debug mode**:
+```bash
+make debug
+```
+
+Launches the Python debugger (pdb) for debugging.
+
+### Configuration File Format
+
+Configuration is managed through `config.txt` with the following parameters:
+
+```
+WIDTH=43                # Maze width in cells (5-100)
+HEIGHT=43               # Maze height in cells (5-100)
+ENTRY=0,0               # Entry point coordinates (x,y)
+EXIT=41,41              # Exit point coordinates (x,y)
+OUTPUT_FILE=maze.txt    # Output file for maze data
+PERFECT=False           # Perfect maze (True) or imperfect (False)
+SEED=0                  # Random seed (0 for random)
+WINDOW_SIZE=900,900     # Window dimensions in pixels
+PIC=1                   # Picture selection: 0=42, 1=AMAZE, 2=42(styled)
+FILENAME=config.txt     # Configuration filename
+COLOR=0                 # Color scheme (0=default)
+GEN_ALGO=prim           # Generation algorithm: dfs|prim|swinder|wilson
+PATH_ALGO=dijkstra      # Pathfinding algorithm: dfs|dijkstra
+```
+
+### Maintenance Commands
+
+```bash
+make clean              # Remove __pycache__, .mypy_cache, temporary files
+make fclean             # Clean + remove virtual environment and dependencies
+make lint               # Run flake8 and mypy type checking
+make lint-strict        # Run linters with strict mypy settings
+make build-mazegen      # Build mazegen library wheel
+make dev                # Install with development dependencies
+```
+
+## Maze Generation Algorithms
+
+- **Depth-First Search (DFS)**: Classic recursive backtracker, yielding long winding corridors.
+- **Prim's Algorithm**: Generates dense, cave-like mazes (randomized minimum spanning tree).
+- **Kruskal's Algorithm**: Randomized spanning tree; connects random walls without cycles.
+- **Sidewinder**: Row-wise bias, fast with strong visual "tunnels."
+- **Wilson's Algorithm**: Loop-erased random walks; highly uniform mazes.
+
+**All algorithms** use an event-dispatch model, supporting animation, hooks, and extensibility.
+
+**Selected default:** DFS (subject to config).
+
+**Why these?:**  
+Each covers a distinct class of maze structure, enabling visually and algorithmically diverse outputs, useful for both educational/benchmarking and demonstration.
+
+#### Pathfinding:
+- **Dijkstra's Algorithm** (default, always enabled if invoked)
+
+## Features
+
+- Multiple classic maze gen algorithms with easy selection at runtime
+- 100% reproducibility with supplied seeds
+- Arbitrary maze dimensions, entry/exit
+- ASCII/graphical rendering (MLX, or pure terminal)
+- Embedded ASCII art ("42" logo pattern) if size permits
+- Color themes and animation
+- Configurable, type-hinted, pydantic-checked config
+- Save/load maze to/from file (custom hex format)
+- Modular, pip-installable `mazegen` library: reusable in other projects
+- Clean separation of UI, logic, animation
+- Robust error handling and parameter validation
+
+## Reusable Components
+
+The project is structured as a modular collection of libraries that can be reused independently:
+
+### 1. **common Library**
+**Location**: [libs/common/](libs/common/)
+
+**Reusable Components**:
+- `Grid`: Core grid data structure supporting arbitrary dimensions and cell operations
+- `Cell`: Individual cell with wall/visited state tracking
+- `Vec2`: 2D vector mathematics for coordinate operations
+- `Direction`: Enumeration for cardinal directions with vector operations
+- `Config`: Configuration management with validation and file I/O
+- `ConfigIO`: File serialization/deserialization for configuration
+
+**How to Use**:
+```python
+from common import Grid, Config, Vec2
+
+# Create a 10x10 grid
+grid = Grid(10, 10)
+grid.fill_empty_grid()
+
+# Access cells
+cell = grid[Vec2(5, 5)]
+cell.rm_wall(Dir.N)  # Remove north wall
+```
+
+### 2. **mazegen Library**
+**Location**: [libs/mazegen/mazegen/](libs/mazegen/mazegen/)
+
+**Reusable Components**:
+- `MazeGenerator`: Unified interface for all maze generation algorithms
+- `BaseStrat`: Abstract strategy class for implementing new algorithms
+- `Graph` / `GridGraph` / `MazeGraph`: Graph representations of grid structures
+- Individual algorithm classes: `Dfs`, `Prim`, `Sidewinder`, `Wilson`, `Dijkstra`
+
+**How to Use**:
+```python
+from mazegen import MazeGenerator
+from common import Grid, Config
+
+grid = Grid(20, 20)
+grid.fill_empty_grid()
+config = Config()
+
+generator = MazeGenerator(grid, config)
+generator.gen_grid("dfs")  # Generate using DFS
+generator.gen_path("dijkstra")  # Find path with Dijkstra
+```
+
+### 3. **graphics Library**
+**Location**: [libs/graphics/graphics/](libs/graphics/graphics/)
+
+**Reusable Components**:
+- `Window`: Main window management with MLX backend
+- `Renderer`: Low-level image and text rendering
+- `Canvas`: Bitmap canvas with pixel drawing capabilities
+- `Animator`: Animation frame sequencing and timing
+- `Event_loop`: Event handling system with hooks
+- `Textures`: Asset loading and caching system
+- `Render_grid` / `Render_cell`: High-level maze rendering
+
+**How to Use**:
+```python
+from graphics import Window, Renderer, Event_loop
+from common import Vec2
+
+# Create window
+Window.create(Vec2(900, 900), "My App")
+
+# Render text/images
+Renderer.render_text("Hello", Vec2(400, 50))
+
+# Add event hooks
+Event_loop.add_key_hook(callback_function, None)
+Event_loop.launch()
+```
+
+### 4. **mlx Library**
+**Location**: [libs/mlx/python/](libs/mlx/python/)
+
+A prebuilt Python binding for the MLX graphics library (C-based). Provides:
+- Window creation and management
+- Low-level pixel drawing
+- Image loading (PNG, XPM formats)
+- Event handling (keyboard, mouse, timing)
+
+## Team & Project Management
+
+### Team Members and Roles
+
+- [maprunty](https://profile.intra.42.fr/users/maprunty) / [m-prunty](https://github.com/m-prunty)- Mazegeneration / path finding / algorithms
+- [sdeppe](https://profile.intra.42.fr/users/sdeppe) / [SWDeppe](https://github.com/SWDeppe) - Graphics / annimation / UI
+
+### Planning & Evolution
+
+**Initial Planning**:
+ - We first planed to do the a simple mazegen in the terminal
+ - Add a graphical interface using mlx
+ - Do the pathfinding
+ - Add more mazegen / pathfinding algorithms
+ - Add some animations
+
+**Evolution During Development**:
+- Changes in algorithm selection
+- Feature additions or removals
+- Technical challenges encountered
+- Pivots in approach
+
+**Timeline**:
+- Project Start: 2026/01/24
+- Last Update: 2026/05/27
+
+### What Worked Well
+
+- Architecture decisions that proved effective
+- Algorithms that performed as expected
+- Development practices that improved productivity
+- Tools that enhanced workflow
+
+### What Could Be Improved
+
+- Performance bottlenecks
+- Implement proper double buffering
+
+### Tools & Technologies Used
+
+**Development Tools**:
+- **uv**: Fast Python package manager (replacing pip)
+- **flake8**: Linter with docstring checking (pydantic plugins)
+- **mypy**: Static type checker with strict settings
+- **pdb**: Python debugger for runtime debugging
+- **make**: Task automation (install, run, lint, clean)
+
+**Core Dependencies**:
+- **pydantic**: Data validation and configuration management
+- **mlx**: C-based graphics library with Python bindings
+- **Python 3.11+**: Primary language runtime
+
+**Project Structure Tools**:
+- **uv workspaces**: Monorepo management with local library dependencies
+- **setuptools**: Package building and distribution
+- **pyproject.toml**: Modern Python project configuration
+
+## Advanced Features
+
+### Perfect vs. Imperfect Mazes
+
+The `PERFECT` configuration parameter controls maze complexity:
+
+- **Perfect Maze** (`PERFECT=True`): Exactly one path between any two cells. Algorithm generates a spanning tree.
+- **Imperfect Maze** (`PERFECT=False`): Multiple paths exist. The algorithm carves additional random walls after creating the spanning tree, calculated as: `(width * height)^0.7`
+
+### Color Schemes
+
+Multiple visual themes available via `COLOR` parameter (values 0-2):
+- This is done using assets found on the internet for tilemaps 
+- Did so that each cell is 9 tiles util two neighbour cells should have the same walls the common shared walls will juste be one cell and the corners are shared between 4 cells
+
+### Picture Embedding (ASCII Art)
+
+Three predefined pictures can be embedded:
+- **PIC=0**: Small 42  (5x7 bits)
+- **PIC=1**: AMAZE Pattern (5x24 bits)
+- **PIC=2**: Large 42 styled (7x24 bits)
+
+The `PIC_SCALAR` parameter scales the picture size. The algorithm:
+1. Calculates optimal scaling to fit within 60% of maze dimensions
+2. Centers the picture in the maze
+3. Marks embedded cells as "ispic" (picture cells)
+4. Adjusts entry/exit if they conflict with picture placement
+
+### Visualization Stages
+
+Maze generation is animated using an event-dispatching system with four stages:
+
+1. **VisitStage**: Highlights cells as they are visited during generation
+2. **RmStage**: Visually shows wall removal during generation
+3. **PathStage**: Highlights cells discovered during pathfinding
+4. **GoalStage**: Marks the exit cell
+
+Each algorithm generates events: `ENTER` (cell visited), `EDGE` (passage carved), `EXIT` (backtrack)
+
+### File Format
+
+Mazes are persisted in a custom format with hexadecimal wall encoding:
+
+```
+<hex_row_1>
+<hex_row_2>
+...
+<entry_x>,<entry_y>
+<exit_x>,<exit_y>
+<direction_sequence>
+```
+
+Each cell is encoded as a nibble (4 bits) with wall states:
+- Bit 0: North wall
+- Bit 1: East wall
+- Bit 2: South wall
+- Bit 3: West wall
+
+The direction sequence encodes the path from entry to exit as: N/S/E/W characters
+
+# [Mazegen documentaion](libs/mazegen/README.md)
+
+**A robust, extensible Python library for maze generation and pathfinding, supporting multiple algorithms and event-dispatch-based extensibility.**
+
+---
+
+## Overview
+
+`mazegen` is a standalone, type-safe, and extensible maze generation toolkit written in Python. It is designed for reusability and integration—serving as the generation engine for projects like *A-Maze-ing*, and for any future project requiring advanced maze logic, animation hooks, or graph algorithms.
+
+---
+
+## Features
+
+- Five fully supported maze generation algorithms
+- Deterministic output with random seeding
+- Type-safe, Pydantic-based configuration and validation
+- Pluggable architecture: easily add new algorithms/events
+- Complete API for grid and cell access
+- Full pytest test suite (`make test`)
+- Clean Makefile for build, test, lint, clean
+
+---
+
+## Supported Algorithms
+
+**Maze Generation Algorithms** (selectable via config):
+- **dfs**: Depth-First Search (classic recursive backtracker)
+- **prim**: Prim's Algorithm (randomized MST)
+- **kruskal**: Kruskal's Algorithm (union-find)
+- **swinder**: Sidewinder (row-wise sweep, horizontal corridors bias)
+- **wilson**: Wilson's Algorithm (loop-erased random walk)
+
+**Pathfinding Algorithm**:
+- **dijkstra**: Dijkstra's algorithm for shortest path (entry ↔ exit)
+
+All algorithms share a common event/stage/dispatch model enabling animation, visualization, and clean extensibility.
+
+---
+
+## Installation
+
+**In the `libs/mazegen/` directory:**
+```bash
+# Install development dependencies and tools
+make dev
+
+# Build a distributable wheel (creates dist/mazegen-*.whl)
+make build
+
+# Install the built package locally (for development or usage)
+pip install dist/mazegen-*.whl
+# or, for immediate usage/edit/dev:
+pip install -e .
+```
+
+---
+
+## Running Tests
+
+```bash
+make test
+```
+
+---
+
+## Clean-up
+
+```bash
+make clean
+# To remove all build and venv artifacts:
+make fclean
+```
+
+---
+
+## Quick Usage Example
+
+```python
+from mazegen import MazeGenerator, Config, Grid
+
+cfg = Config(width=12, height=12, entry=(0,0), exit=(11,11), gen_algo="kruskal")
+
+grid = Grid(cfg.width, cfg.height)
+mg = MazeGenerator(grid, cfg)
+
+mg.gen_grid(cfg.gen_algo)   # Generate a maze with selected algorithm
+mg.gen_path(cfg.path_algo)  # (Optional) Find shortest path (Dijkstra)
+
+print(grid)         # Grid/wall output
+```
+
+All config parameters are type-checked, with detailed errors if misconfigured.
+
+---
+
+## Configuration
+
+| Name        | Type         | Description                       | Example      |
+|-------------|--------------|-----------------------------------|--------------|
+| `width`     | int          | Maze width (cells)                | 10           |
+| `height`    | int          | Maze height (cells)               | 10           |
+| `entry`     | tuple[int]   | Entry coordinates                  | (0, 0)       |
+| `exit`      | tuple[int]   | Exit coordinates                   | (9, 9)       |
+| `output_file` | str        | Write output file for grid         | "maze.txt"   |
+| `perfect`   | bool         | If true, guarantees single path    | True         |
+| `seed`      | int          | Random seed (for reproducibility)  | 42           |
+| `gen_algo`  | str          | Algorithm: dfs, prim, kruskal, swinder, wilson | "dfs" |
+| `path_algo` | str          | Pathfinding: dijkstra             | "dijkstra"   |
+| ...         | ...          | See in-code docstrings for more    |              |
+
+All values are validated with descriptive errors.
+
+---
+
+## Event-Dispatch Algorithm Model
+
+All algorithms in mazegen are implemented as event-driven strategies. This model means:
+
+- **Algorithms yield events (cell visit, wall removal, etc.)** instead of just mutating state.
+- **Stage handlers** are registered (such as VisitStage, PathStage, RmStage) and process these events, allowing for extensible logic, visualization, and animation.
+- **Custom stages** (implemented as Protocol) can be inserted for logging, metric collection, or stepwise GUI animation, without modifying the core algorithm code.
+
+*This design makes adding features, debugging, and interactive visualization simple and robust.*
+
+---
+
+## Error Handling
+
+- Rich, custom error types for configuration, grid, or algorithm issues
+- Example:
+    ```python
+    from mazegen.errors import ConfigError, MazeError
+
+    try:
+        ...
+    except ConfigError as e:
+        print("Config issue:", e)
+    except MazeError as e:
+        print("Maze runtime error:", e)
+    ```
+
+---
+
+## Development
+
+- Extend by subclassing `BaseStrat` or registering new stage/event handlers.
+- Add new algorithms by adding to `registry.py` and using dispatch for ENTRY, EDGE, EXIT events.
+- See the `algos.py` and docstrings for examples of how to implement new strategies.
+
+---
+
+
+
+
+## Resources & References
+
+### Maze Generation Theory
+- [Maze Theory and Concepts](https://www.astrolog.org/labyrnth/algrithm.htm)
+- [Maze Generation Algorithms - Wikipedia](https://en.wikipedia.org/wiki/Maze_generation_algorithm)
+- [Depth-First Search - Wikipedia](https://en.wikipedia.org/wiki/Depth-first_search)
+- [Prim's Algorithm - Wikipedia](https://en.wikipedia.org/wiki/Prim%27s_algorithm)
+- [Sidewinder Algorithm Guide](https://en.wikipedia.org/wiki/Maze_generation_algorithm#Sidewinder)
+- [Wilson's Algorithm - Wikipedia](https://en.wikipedia.org/wiki/Maze_generation_algorithm#Wilson's_algorithm)
+
+### Pathfinding Theory
+- [Dijkstra's Algorithm - Wikipedia](https://en.wikipedia.org/wiki/Dijkstra%27s_algorithm)
+
+### Graphics & Visualization
+- [MLX Graphics Library](https://github.com/codam-coding-school/MLX42) - Modern C graphics library
+
+### Related Concepts
+- [Graph Theory Fundamentals](https://en.wikipedia.org/wiki/Graph_theory)
+- [Spanning Trees](https://en.wikipedia.org/wiki/Spanning_tree)
+- [Event-Driven Architecture](https://en.wikipedia.org/wiki/Event-driven_architecture)
+
+### Python & Development Tools
+- [Pydantic Documentation](https://docs.pydantic.dev/) - Data validation
+- [mypy Type Checking](https://www.mypy-lang.org/)
+- [flake8 Linter](https://flake8.pycqa.org/)
+- [uv Package Manager](https://docs.astral.sh/uv/)
+
+## AI Usage
+
+- Docstrings for most of the functions 
+- Debbuging
+- Learn mlx usages in python
+
+
+---
+
+**Last Updated**: May 24, 2026  
+**Repository**: [GitHub Link - [m-prunty github](https://github.com/m-prunty/a_maze_ing)]  

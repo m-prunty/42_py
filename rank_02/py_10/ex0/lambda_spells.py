@@ -7,7 +7,7 @@
 #    By: maprunty <maprunty@student.42heilbronn.d  +#+  +:+       +#+         #
 #                                                +#+#+#+#+#+   +#+            #
 #    Created: 2026/04/27 04:28:21 by maprunty         #+#    #+#              #
-#    Updated: 2026/04/27 20:27:45 by maprunty        ###   ########.fr        #
+#    Updated: 2026/05/08 01:45:37 by maprunty        ###   ########.fr        #
 #                                                                             #
 # *************************************************************************** #
 """Lambda Spells: A Magical Data Manipulation Exercise."""

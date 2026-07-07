@@ -1,0 +1,46 @@
+"""Canvas class for rendering images onto the screen using the Mlx library."""
+
+from mazegen.grid_tools import Vec2
+
+from ..assets import Textures
+from ..mlx_context import Mlx_context
+from .renderer import Renderer
+
+
+class Canvas:
+    """Canvas class to manage an off-screen image buffer for rendering."""
+
+    def __init__(self, siz: Vec2, pos: Vec2):
+        """Initialize the Canvas with a specified size and position."""
+        self.siz = siz
+        self.pos = pos
+        self.img = Mlx_context._mlx.mlx_new_image(
+            Mlx_context.get(), int(siz.x), int(siz.y)
+        )
+        img_data = Mlx_context._mlx.mlx_get_data_addr(self.img)
+        self.img_mem, self.bpp, self.siz_line, _ = img_data
+
+    def add_image(self, img_ptr: int, place: Vec2) -> None:
+        """Add an image to the canvas at a specified position."""
+        img_data = Mlx_context._mlx.mlx_get_data_addr(
+            Textures.get_element(img_ptr)
+        )
+        src_data, src_bpp, src_size_line, _ = img_data
+        src_data = src_data.cast("B")
+        bytes_pp = src_bpp // 8
+        siz = Vec2()
+        siz.x = int(Textures.get_siz(img_ptr).x)
+        siz.y = int(Textures.get_siz(img_ptr).y)
+
+        for y in range(siz.y):
+            src_start = y * src_size_line
+            src_end = src_start + siz.x * bytes_pp
+            dst_start = (y + place.y) * self.siz_line + place.x * bytes_pp
+            dst_end = dst_start + siz.x * bytes_pp
+            self.img_mem[dst_start:dst_end] = src_data[
+                src_start:src_end
+            ].tobytes()
+
+    def put_canva(self) -> None:
+        """Render the canvas image onto the screen at its specified pos."""
+        Renderer.render_image_ptr(self.img, self.pos)
