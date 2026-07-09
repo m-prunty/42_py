@@ -7,7 +7,7 @@
 #    By: sdeppe <sdeppe@student.42heilbronn.de>    +#+  +:+       +#+         #
 #                                                +#+#+#+#+#+   +#+            #
 #    Created: 2026/01/31 01:26:52 by sdeppe           #+#    #+#              #
-#    Updated: 2026/07/06 05:13:48 by maprunty        ###   ########.fr        #
+#    Updated: 2026/07/08 02:59:00 by maprunty        ###   ########.fr        #
 #                                                                             #
 # *************************************************************************** #
 """Main file to run A-maze-ing."""
@@ -51,6 +51,20 @@ def main() -> None:
         print("Welcome to the Maze")
         # try:
         init_model = Small_LLM_Model()
+        #   print(init_model.encode("Hello, world!"))
+        #   print(init_model.decode([7592, 11, 995]))
+        #   print(init_model.decode([i for i in range(100)]))
+        print(init_model.get_path_to_vocab_file())
+        #   print(init_model.get_path_to_merges_file())
+        #   print(init_model.encode("What is the sum of 2 and 3?"))
+        # print(
+        #    init_model.decode(init_model.get_logits_from_input_ids([9707, 11]))
+        # )
+        logits = init_model.get_logits_from_input_ids([9707, 11])
+
+    #        for token_id, score in enumerate(logits):
+    #            token = init_model.decode([token_id])
+    #            print(token_id, repr(token), score)
     #        except Exception as e:
     #            print(f"Error during main loop: {e}")
     else:
