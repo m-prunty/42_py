@@ -1,2 +1,0 @@
-[console_scripts]
-call_me_maybe = call_me_maybe.main:main
