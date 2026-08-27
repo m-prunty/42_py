@@ -6,7 +6,7 @@
 #    By: maprunty <maprunty@student.42heilbronn.de  +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2026/07/06 02:51:25 by maprunty          #+#    #+#              #
-#    Updated: 2026/07/07 23:58:21 by maprunty         ###   ########.fr        #
+#    Updated: 2026/07/10 14:27:44 by maprunty         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -14,16 +14,17 @@
 
 .PHONY: install run debug clean lint lint-strict build-llm
 
-PYTHON     := uv run python3
-MAIN       := call_me_maybe.py
-CONFIG     := config.txt
-GOINFRE	   := $(HOME)/goinfre
-CMM		   := $(GOINFRE)/cmm
-UV_VENV_DIR	   := $(CMM)/venv
-UV_CACHE_DIR	   := $(CMM)/cache	
-UV := UV_CACHE_DIR=$(UV_CACHE_DIR) UV_VENV_DIR=$(UV_VENV_DIR) uv
-LLM_SDK    := llm_sdk
-PYREPL := ipython --colors=Linux --automagic --no-simple-prompt
+PYTHON        := python3
+MAIN          := call_me_maybe.py
+CONFIG        := config.txt
+GOINFRE	      := $(HOME)/goinfre
+CMM		      := $(GOINFRE)/cmm
+UV_VENV_DIR	  := $(CMM)/venv
+UV_CACHE_DIR  := $(CMM)/cache	
+UV            := UV_CACHE_DIR=$(UV_CACHE_DIR) UV_VENV_DIR=$(UV_VENV_DIR) uv
+LLM_SDK       := llm_sdk
+PYREPL        := ipython --colors=Linux --automagic --no-simple-prompt
+WHEEL         := $(wildcard $(LLM_SDK)/dist/*.whl)
 
 
 install: venv build-llm
@@ -46,7 +47,7 @@ debug:
 venv:
 	mkdir -p $(UV_VENV_DIR)
 	mkdir -p $(UV_CACHE_DIR)
-	ln -s $(UV_VENV_DIR) .venv
+	[ -e .venv ] || ln -s /home/maprunty/goinfre/cmm/venv .venv
 
 clean:
 	find . -type d -name "__pycache__" -exec rm -rf {} +
@@ -76,7 +77,8 @@ lint-strict:
 	$(PYTHON) -m flake8 .
 	$(PYTHON) -m mypy . --strict
 
-build-llm:
-	rm -f *.whl
-	cd $(LLM_SDK) && uv build --package llm_sdk --wheel 
+build-llm: $(WHEEL)
+
+$(LLM_SDK)/dist/%.whl:
+	cd $(LLM_SDK) && uv build --package llm_sdk --wheel
 
