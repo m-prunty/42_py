@@ -2,7 +2,10 @@
 name = "call_me_maybe"
 version = "0.1.0"
 requires-python = ">=3.11"
-
+readme = "README.md"
+authors = [
+    { name = "maprunty", email = "maprunty@student.42heilbronn.de" }
+]
 dependencies = [
 	"numpy",
     	"pydantic",
@@ -10,21 +13,16 @@ dependencies = [
 ]
 
 
-[project.scripts]
-call_me_maybe = "call_me_maybe.main:main"
-
 [tool.uv.sources]
-llm_sdk = { path = "llm_sdk/dist/llm_sdk-0.1.0-py3-none-any.whl" } 
+llm_sdk = { path = "llm_sdk/dist/llm_sdk-0.1.0-py3-none-any.whl" }
 
-[build-system]
-requires = ["setuptools>=61.0"]
-build-backend = "setuptools.build_meta"
+
 
 [dependency-groups]
 dev = [
     "flake8>=7.3.0",
     "flake8-pyproject>=1.2.4",
-    "flake8-docstrings>=1.7.0",   
+    "flake8-docstrings>=1.7.0",
     "mypy>=2.0.0",
 ]
 
