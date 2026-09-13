@@ -7,15 +7,17 @@
 #    By: maprunty <maprunty@student.42heilbronn.d  +#+  +:+       +#+         #
 #                                                +#+#+#+#+#+   +#+            #
 #    Created: 2026/07/06 10:50:49 by maprunty         #+#    #+#              #
-#    Updated: 2026/09/11 16:51:05 by maprunty        ###   ########.fr        #
+#    Updated: 2026/09/13 08:50:32 by maprunty        ###   ########.fr        #
 #                                                                             #
 # *************************************************************************** #
 
-"""Main file to run A-maze-ing."""
+"""Main file to run Call Me Maybe."""
 
 import os
+import sys
+from argparse import ArgumentParser, Namespace
 
-from llm_sdk import Small_LLM_Model
+from gen_pipe import GenerationPipeline
 
 RED = "\033[0;31m"
 GREEN = "\033[0;32m"
@@ -42,34 +44,69 @@ def not_venv_warning() -> str:
     )
 
 
-def main() -> None:
-    """Run A-maze-ing."""
+"""
+IV.3.2 Usage
+Your program must be run using the following command (where src is the folder con-
+taining your files):
+Running the program
+uv run python -m src [--functions_definition <function_definition_file>] [--input <input_file>] [--
+output <output_file>]
+By default, the program will read input files from the data/input/
+directory and write output to the data/output/ directory. You
+can optionally specify custom paths using the --input and --output
+arguments. For example:
+uv run python -m src
+--functions_definition data/input/functions_definition.json
+--input data/input/function_calling_tests.json
+--output data/output/function_calls.json
+"""
+
+
+def args_parse() -> Namespace:
     """https://realpython.com/command-line-interfaces-python-argparse/"""
-    print(
-        f"\n{PURPLE}A_Maze_ing{END}:",
+    parser = ArgumentParser(description="Call Me Maybe")
+    parser.add_argument(
+        "-f",
+        "--functions_definition",
+        type=str,
+        default="data/input/functions_definition.json",
+        help="Path to the functions definition file",
     )
+    parser.add_argument(
+        "-i",
+        "--input",
+        type=str,
+        default="data/input/function_calling_tests.json",
+        help="Path to the input file",
+    )
+    parser.add_argument(
+        "-o",
+        "--output",
+        type=str,
+        default="data/output/function_calls.json",
+        help="Path to the output file",
+    )
+    parser.add_argument(
+        "-l",
+        "--log",
+        type=str,
+        default=sys.stdout,
+        help="Path to the log file",
+    )
+    return parser.parse_args()
+
+
+def main() -> None:
+    """Run Call Me Maybe."""
+    args = args_parse()
+    print(
+        f"\n{PURPLE}Call Me Maybe{END}:",
+    )
+    print(args)
     venv_path, venv_name = os.path.split(os.getenv("VIRTUAL_ENV", "None"))
     if venv_path:
-        print("Welcome to the Maze")
-        # try:
-        init_model = Small_LLM_Model()
-        print(init_model.encode("return"))
-        # print(init_model.decode([7592, 11, 995]))
-        #   print(init_model.decode([i for i in range(100)]))
-        print(init_model.get_path_to_vocab_file())
-        print(init_model.get_path_to_merges_file())
-        #   print(init_model.encode("What is the sum of 2 and 3?"))
-        # print(
-        #    init_model.decode(init_model.get_logits_from_input_ids([9707, 11]))
-        # )
-        logits = init_model.get_logits_from_input_ids([470])
-
-        print(logits)
-    #        for token_id, score in enumerate(logits):
-    #            token = init_model.decode([token_id])
-    #            print(token_id, repr(token), score)
-    #        except Exception as e:
-    #            print(f"Error during main loop: {e}")
+        print("Welcome to Call Me Maybe!")
+        pipe = GenerationPipeline(args)
     else:
         print(not_venv_warning())
 

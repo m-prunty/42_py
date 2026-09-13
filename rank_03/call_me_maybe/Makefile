@@ -6,7 +6,7 @@
 #    By: maprunty <maprunty@student.42heilbronn.de  +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2026/07/06 02:51:25 by maprunty          #+#    #+#              #
-#    Updated: 2026/09/11 14:42:43 by maprunty        ###   ########.fr        #
+#    Updated: 2026/09/13 08:51:08 by maprunty        ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -23,11 +23,14 @@ UV_CACHE_DIR  := $(CMM)/cache
 UV            := UV_CACHE_DIR=$(UV_CACHE_DIR) UV_VENV_DIR=$(UV_VENV_DIR) uv
 LLM_SDK       := ${CMM}/llm_sdk
 PYREPL        := ipython --colors=Linux --automagic --no-simple-prompt
-WHEEL         := $(wildcard $(LLM_SDK)/dist/*.whl)
 DATA_DIR      := $(CMM)/data
 
+FUNCTIONS_DEFINITION := $(DATA_DIR)/input/functions_definition.json
+INPUT  := $(DATA_DIR)/input/function_calling_tests.json
+OUTPUT := $(DATA_DIR)/output/function_calls.json
+
 run: install
-	$(UV) run $(PYTHON) $(MAIN)
+	$(UV) run $(PYTHON) $(MAIN) -f ${FUNCTIONS_DEFINITION} -i ${INPUT} -o${OUTPUT}
 
 install: venv build-llm data
 	$(UV) sync --no-dev
