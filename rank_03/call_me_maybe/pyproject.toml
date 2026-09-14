@@ -24,6 +24,7 @@ dev = [
     "flake8-pyproject>=1.2.4",
     "flake8-docstrings>=1.7.0",
     "mypy>=2.0.0",
+    "ipython>=9.17.1",
 ]
 
 [tool.mypy]
