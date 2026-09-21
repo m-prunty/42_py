@@ -7,7 +7,7 @@
 #    By: maprunty <maprunty@student.42heilbronn.d  +#+  +:+       +#+         #
 #                                                +#+#+#+#+#+   +#+            #
 #    Created: 2026/09/12 23:42:02 by maprunty         #+#    #+#              #
-#    Updated: 2026/09/14 18:17:50 by maprunty        ###   ########.fr        #
+#    Updated: 2026/09/21 19:42:50 by maprunty        ###   ########.fr        #
 #                                                                             #
 # *************************************************************************** #
 
@@ -44,7 +44,7 @@ import json
 import numpy as np
 
 from llm_sdk import Small_LLM_Model
-from models import FnModel, PromptModel
+from models import FnModel, OutModel, PromptModel
 
 
 class GrammarConstrainedSampler:
@@ -115,88 +115,72 @@ class GenerationPipeline:
         self.prompts: list[PromptModel] = [
             PromptModel(**i) for i in self.get_from_json(args.input)
         ]
-        #        fn_logits = self.model.get_logits_from_input_ids(
-        #            self.model.encode("function_calling").tolist()
-        #        )
         output_path = args.output
         log_path = args.log
-        with open(self.model.get_path_to_vocab_file()) as f:
-            str2id = json.load(f)
-        id2str = {v: k for k, v in str2id.items()}
-        print(id2str)
+        self.vocab = self.get_from_json(self.model.get_path_to_vocab_file())
+        self.vocab_ids = {v: k for k, v in self.vocab.items()}
         [print(i) for i in self.fns]
         [print(i) for i in self.prompts]
-        self.generated = ""
-        self.enum_constrained_generate(
-            self.model,
-            self.tokenize(self.prompts[0].prompt),
-            ["fn_add_numbers", "fn_greet"],
-            id2str,
-        )
-        nums = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "."]
-        #        self.enum_constrained_generate(
-        #            self.model,
-        #            self.tokenize(self.prompts[0].prompt),
-        #            nums,
-        #            id2str,
-        #        )
-        print(
-            self.decode(
-                self.constrained_sample(
-                    np.asarray(
-                        self.model.get_logits_from_input_ids(
-                            self.tokenize(self.prompts[0].prompt)
-                        ),
-                        dtype=float,
-                    ),
-                    self.generated,
-                    nums,
-                    id2str,
-                )
-            )
-        )
-
-        # try:
-        # print(self.model.encode("return"))
-        # print(self.model.decode([7592, 11, 995]))
-        #   print(self.model.decode([i for i in range(100)]))
+        for p in self.prompts:
+            out = OutModel(prompt=p.prompt)
+            self.pick_fn(out)
+            self.fill_params(out)
+            print(out)
         print(self.model.get_path_to_vocab_file())
         print(self.model.get_path_to_merges_file())
-        #        in_ids = self.model.encode("What is the sum of 2 and 3?").tolist()
-        # in_ids += self.model.encode("Greet shrek").tolist()
-        #        print(in_ids)
-        # print(
-        #    self.model.decode(init_model.get_logits_from_input_ids([9707, 11]))
-        # )
-        #        logits = self.model.get_logits_from_input_ids(in_ids[0])
-        #        for token_id, score in enumerate(logits):
-        #            token = self.model.decode([token_id])
-        #            if score > 10:
-        #                print(token_id, repr(token), score)
-        #        print(
-        #            f"Most probable next token: {repr(most_probable_token)} with score {max(logits)}"
-        #        )
-        #        sorted_logits = sorted(
-        #            [(token_id, score) for token_id, score in enumerate(logits)],
-        #            key=lambda x: x[1],
-        #            reverse=True,
-        #        )
-        #        print("Top 10 tokens by score:")
-        #        for token_id, score in sorted_logits[:10]:
-        #            token = self.model.decode([token_id])
-        #            print(token_id, repr(token), score)
 
-        # print(self.get_response(prompt))
+    def get_fn_by_name(self, name: str) -> FnModel:
+        """Retrieve a function definition by its name."""
+        for fn in self.fns:
+            if fn.name == name:
+                return fn
+        raise ValueError(f"Function with name {name} not found.")
 
-        #        for token_id, score in enumerate(logits):
-        #            token = self.model.decode([token_id])
-        #            if score > 10:
-        #                print(token_id, repr(token), score)
+    def fill_params(self, res: OutModel) -> None:
+        fn = self.get_fn_by_name(res.name)
+        for param_name, param_type in fn.parameters.items():
+            if param_name not in res.parameters:
+                res.parameters[param_name] = self.generate_param_value(
+                    res, param_type
+                )
 
-        #        except Exception as e:
-        #            print(f"Error during main loop: {e}")
+    def generate_param_value(self, res: OutModel, param_type: type) -> any:
+        a = self.constrained_sample(
+            logits=np.asarray(
+                self.model.get_logits_from_input_ids(
+                    self.tokenize(res.__str__())
+                ),
+                dtype=float,
+            ),
+            current_text=res.name,
+            candidates=[],
+            token_to_char=self.vocab_ids,
+        )
+        return self.model.decode([a])
 
-        # print(logits)
+    def pick_fn(self, res: OutModel) -> None:
+        fns_withdescriptions = "\n".join(str(fn) for fn in self.fns)
+        header = (
+            f"Available functions:\n{fns_withdescriptions}\n\n"
+            f"Request: {res.prompt}\n"
+            f"Function name: "
+        )
+        while res.name not in [i.name for i in self.fns]:
+            next_token = self.constrained_sample(
+                logits=np.asarray(
+                    self.model.get_logits_from_input_ids(
+                        self.tokenize(header + res.name)
+                    ),
+                    dtype=float,
+                ),
+                current_text=res.name,
+                candidates=[i.name for i in self.fns],
+                token_to_char=self.vocab_ids,
+            )
+            print(
+                f"Next token ID: {next_token}, decoded: {self.model.decode([next_token])}"
+            )
+            res.name += self.model.decode([next_token])
 
     def constrained_sample(
         self,
@@ -205,75 +189,74 @@ class GenerationPipeline:
         candidates: list[str],
         token_to_char: dict[int, str],
     ) -> int:
-        """Sample from logits with grammar constraints.
-
-        Args:
-            logits: Raw model logits over vocabulary
-            current_text: Text generated so far
-            token_to_char: Mapping from token IDs to characters
-
-        Returns:
-            Selected token ID
-        """
         # Get valid tokens from grammar
         # valid_chars = self.grammar_valid_fn(current_text)
+        #        print(f"Current text: {current_text}, candidates: {candidates}")
         valid_chars = [c for c in candidates if c.startswith(current_text)]
-
+        #        print(valid_chars, current_text, candidates)
+        #        print(f"Current text: {current_text}, valid characters: {valid_chars}")
         # Create mask for valid token IDs
         valid_token_ids = {
-            tid for tid, char in token_to_char.items() if char in valid_chars
+            tid
+            for tid, s in token_to_char.items()
+            if s and any(c.startswith(current_text + s) for c in valid_chars)
         }
-
+        #        print(f"Valid token IDs: {valid_token_ids}")
         # Apply mask: set invalid logits to -infinity
         masked_logits = logits.copy()
-        for tid in range(len(logits)):
-            if tid not in valid_token_ids:
-                masked_logits[tid] = float("-inf")
+        if valid_token_ids:
+            for tid in range(len(logits)):
+                if tid not in valid_token_ids:
+                    masked_logits[tid] = float("-inf")
 
+        #        print(
+        #            f"Masked logits: {masked_logits}, valid token IDs: {valid_token_ids}"
+        #        )
         # Convert to probabilities and sample
         probs = self._softmax(masked_logits)
-        return np.random.choice(len(probs), p=probs)
+        #        print(probs, probs.sum(), valid_token_ids, current_text, candidates)
+        return np.argmax(probs)
+
+    # np.random.choice(len(probs), p=probs)
 
     def _softmax(self, x: np.ndarray) -> np.ndarray:
-        """Compute softmax probabilities."""
+        """Compute softmax probabilities.
+
+        https://en.wikipedia.org/wiki/Softmax_function
+        https://www.delftstack.com/howto/numpy/numpy-softmax/
+        """
         exp_x = np.exp(x - np.max(x))
         return exp_x / exp_x.sum()
 
-    def enum_constrained_generate(
-        self, model, ids, candidates, id2str, max_steps=30
-    ):
-        generated = ""
-        # print(model, ids, candidates, max_steps)
+    def enum_constrained_generate(self, ids, candidates, id2str, max_steps=30):
+        self.generated = ""
+        print(self.model, ids, candidates, max_steps)
         for _ in range(max_steps):
-            live = [c for c in candidates if c.startswith(generated)]
-            print(f"Live candidates: {live}, generated so far: {generated!r}")
-            if generated in live and len(live) == 1:
-                return generated, ids  # unambiguous match — done
+            live = [c for c in candidates if c.startswith(self.generated)]
+            if self.generated in live and len(live) == 1:
+                return self.generated, ids  # unambiguous match — done
 
             logits = np.asarray(
-                model.get_logits_from_input_ids(ids), dtype=float
+                self.model.get_logits_from_input_ids(ids), dtype=float
             )
             allowed = [
                 tid
                 for tid, s in id2str.items()
-                if s and any(c.startswith(generated + s) for c in live)
+                if s and any(c.startswith(self.generated + s) for c in live)
             ]
-            print(
-                f"Allowed token IDs: {allowed},{self.model.decode(allowed)} logits: {logits}"
-            )
             if not allowed:
-                raise RuntimeError(f"dead end after {generated!r}")
+                raise RuntimeError(f"dead end after {self.generated!r}")
 
             masked = np.full_like(logits, -np.inf)
             masked[allowed] = logits[allowed]
             next_id = int(np.argmax(masked))
 
             ids.append(next_id)
-            generated += id2str[next_id]
+            self.generated += id2str[next_id]
             print(
-                f"Generated so far: {generated!r}, next token: {id2str[next_id]!r}"
+                f"Generated so far: {self.generated!r}, next token: {id2str[next_id]!r}"
             )
-        self.generated = generated
+        print(f"Final generated string: {generated!r}", self.generated)
         raise RuntimeError("exceeded max_steps")
 
     def get_response(self, prompt: str) -> str:
@@ -299,6 +282,6 @@ class GenerationPipeline:
     def run(self): ...
     def tokenize(self, text: str) -> list[str]:
         """Tokenize the input text and return a list of tokens."""
-        print(f"Tokenizing text: {text}")
+        # print(f"Tokenizing text: {text}")
         return self.model.encode(text)[0].tolist()
         # try:
