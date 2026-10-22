@@ -7,7 +7,7 @@
 #    By: maprunty <maprunty@student.42heilbronn.d  +#+  +:+       +#+         #
 #                                                +#+#+#+#+#+   +#+            #
 #    Created: 2026/09/25 04:25:56 by maprunty         #+#    #+#              #
-#    Updated: 2026/09/25 11:14:03 by maprunty        ###   ########.fr        #
+#    Updated: 2026/10/08 16:31:17 by maprunty        ###   ########.fr        #
 #                                                                             #
 # *************************************************************************** #
 
@@ -19,6 +19,7 @@ import numpy as np
 from llm_sdk import Small_LLM_Model
 from models import FnModel, OutModel, ParamModel, PromptModel
 
+_GEN_TERM = ["\\n"]
 _NUMS = [
     "0",
     "1",
@@ -32,9 +33,9 @@ _NUMS = [
     "9",
     ".",
     "-",
-]
-_BOOL = ["True", "False"]
-
+] + _GEN_TERM
+_BOOL = ["True", "False"] + _GEN_TERM
+_CHARS = [chr(i) for i in range(127) if chr(i).isalnum()] + ['.', ',', ' ', "'"] + _GEN_TERM
 
 class GeneratorBase(ABC):
     """Base class for generators."""
@@ -53,7 +54,15 @@ class GeneratorBase(ABC):
         self.bool_tokens = [self.tokenize(i) for i in _BOOL]
         self.vocab = self.get_from_json(self.model.get_path_to_vocab_file())
         self.vocab_ids = {v: k for k, v in self.vocab.items()}
-        print(self.fns)
+        self.newline_token_ids = {
+            tid
+            for tid in range(len(self.vocab))
+            if self.model.decode(tid) == "\n"
+        }
+#        print([i for i in self.vocab if i.isalpha()])
+#        print([i for i in self.vocab if i.isnumeric()])
+        print(">>>>>>", [i for i in self.vocab if "\\n" in i], repr(self.vocab_ids[198]))
+        print(_CHARS, self.newline_token_ids)
         [print(i) for i in self.fns]
         [print(i) for i in self.prompts]
         output_path = args.output
@@ -87,7 +96,6 @@ class GreedyGenerator(GeneratorBase):
 
     def __init__(self, args, model: Small_LLM_Model):
         super().__init__(args, model)
-        self.run()
 
     def run(self) -> None:
         for p in self.prompts:
@@ -127,8 +135,8 @@ class GreedyGenerator(GeneratorBase):
         )
         response = ""
         while response[-1:] != "\n":
-            # print(f"Current response: {response!r}, header: {header}")
-            next_token = self.constrained_sample(
+            print(f"Current response: {response!r}, header: {header}")
+            next_token = self.constrained_sample2(
                 logits=np.asarray(
                     self.model.get_logits_from_input_ids(
                         self.tokenize(header)
@@ -136,12 +144,37 @@ class GreedyGenerator(GeneratorBase):
                     dtype=float,
                 ),
                 current_text=res.name,
-                candidates=[],
+                candidates=[], #_NUMS if isinstance(param.type, int) else _CHARS,
                 token_to_char=self.vocab_ids,
             )
             response += self.model.decode([next_token])
             header += self.model.decode([next_token])
+            print(next_token, self.model.decode(next_token))
         return response.strip()
+
+    def constrained_sample2(
+        self,
+        logits: np.ndarray,
+        current_text: str,
+        candidates: list[str],
+        token_to_char: dict[int, str],
+    ) -> int:
+        valid_chars = [c for c in candidates] 
+        valid_token_ids = {
+            tid
+            for tid, s in token_to_char.items()
+            if s in valid_chars
+        }
+        print([self.model.decode(i) for i in valid_token_ids])
+        print(valid_token_ids)
+        masked_logits = logits.copy()
+        if valid_token_ids:
+            for tid in range(len(logits)):
+                if tid not in valid_token_ids:
+                    masked_logits[tid] = float("-inf")
+
+        probs = self._softmax(masked_logits)
+        return np.argmax(probs)
 
     def pick_fn(self, res: OutModel) -> None:
         fns_withdescriptions = "\n".join(str(fn) for fn in self.fns)
@@ -162,11 +195,7 @@ class GreedyGenerator(GeneratorBase):
                 candidates=[i.name for i in self.fns],
                 token_to_char=self.vocab_ids,
             )
-            #            print(
-            #                f"Next token ID: {next_token}, decoded: {self.model.decode([next_token])}"
-            #            )
             res.name += self.model.decode([next_token])
-
     def constrained_sample(
         self,
         logits: np.ndarray,
@@ -175,6 +204,7 @@ class GreedyGenerator(GeneratorBase):
         token_to_char: dict[int, str],
     ) -> int:
         valid_chars = [c for c in candidates if c.startswith(current_text)]
+        print(valid_chars)
         valid_token_ids = {
             tid
             for tid, s in token_to_char.items()

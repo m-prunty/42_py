@@ -1,12 +1,12 @@
 # **************************************************************************** #
 #                                                                              #
 #                                                         :::      ::::::::    #
-#    Makefile                                          :+:      :+:    :+:    #
+#    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
 #    By: maprunty <maprunty@student.42heilbronn.de  +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2026/07/06 02:51:25 by maprunty          #+#    #+#              #
-#    Updated: 2026/09/13 08:51:08 by maprunty        ###   ########.fr        #
+#    Updated: 2026/10/07 03:49:45 by maprunty         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -85,13 +85,13 @@ lint-strict:
 dl-llm_sdk:
 	mkdir -p $(LLM_SDK)
 	[ -e llm_sdk ] || ln -s $(LLM_SDK) llm_sdk
-	curl -fL "https://cdn.intra.42.fr/document/document/48109/llm_sdk.zip" -o ${CMM}/llm_sdk.zip
+	curl -fL "https://cdn.intra.42.fr/document/document/57729/llm_sdk.zip" -o ${CMM}/llm_sdk.zip
 	unzip -o ${CMM}/llm_sdk.zip -d ${CMM}
 
 data:
 	mkdir -p $(DATA_DIR)
 	[ -e data ] || ln -s $(DATA_DIR)
-	curl -fL "https://cdn.intra.42.fr/document/document/48108/data.zip" -o ${CMM}/data.zip
+	curl -fL "https://cdn.intra.42.fr/document/document/57728/data.zip" -o ${CMM}/data.zip
 	unzip -o ${CMM}/data.zip -d ${CMM}
 
 
